@@ -1,5 +1,6 @@
-package Airspace;
+package Airport;
 
+import Others.Plane;
 import hla.rti1516e.*;
 import hla.rti1516e.encoding.DecoderException;
 import hla.rti1516e.encoding.HLAboolean;
@@ -11,7 +12,7 @@ import org.portico.impl.hla1516e.types.encoding.HLA1516eBoolean;
 import org.portico.impl.hla1516e.types.encoding.HLA1516eFloat32BE;
 import org.portico.impl.hla1516e.types.encoding.HLA1516eInteger32BE;
 
-public class AirspaceFederateAmbassador extends NullFederateAmbassador
+public class AirportFederateAmbassador extends NullFederateAmbassador
 {
     //----------------------------------------------------------
     //                    STATIC VARIABLES
@@ -20,7 +21,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
     //----------------------------------------------------------
     //                   INSTANCE VARIABLES
     //----------------------------------------------------------
-    private AirspaceFederate federate;
+    private AirportFederate federate;
 
     // these variables are accessible in the package
     protected double federateTime        = 0.0;
@@ -33,14 +34,13 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
     protected boolean isAnnounced        = false;
     protected boolean isReadyToRun       = false;
 
-
     protected boolean isRunning       = true;
 
     //----------------------------------------------------------
     //                      CONSTRUCTORS
     //----------------------------------------------------------
 
-    public AirspaceFederateAmbassador(AirspaceFederate federate )
+    public AirportFederateAmbassador(AirportFederate federate )
     {
         this.federate = federate;
     }
@@ -53,12 +53,12 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
         System.out.println( "FederateAmbassador: " + message );
     }
 
-
     //////////////////////////////////////////////////////////////////////////
     ////////////////////////// RTI Callback Methods //////////////////////////
     //////////////////////////////////////////////////////////////////////////
     @Override
-    public void synchronizationPointRegistrationFailed( String label, SynchronizationPointFailureReason reason )
+    public void synchronizationPointRegistrationFailed( String label,
+                                                        SynchronizationPointFailureReason reason )
     {
         log( "Failed to register sync point: " + label + ", reason="+reason );
     }
@@ -73,7 +73,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
     public void announceSynchronizationPoint( String label, byte[] tag )
     {
         log( "Synchronization point announced: " + label );
-        if( label.equals(AirspaceFederate.READY_TO_RUN) )
+        if( label.equals(AirportFederate.READY_TO_RUN) )
             this.isAnnounced = true;
     }
 
@@ -81,7 +81,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
     public void federationSynchronized( String label, FederateHandleSet failed )
     {
         log( "Federation Synchronized: " + label );
-        if( label.equals(AirspaceFederate.READY_TO_RUN) )
+        if( label.equals(AirportFederate.READY_TO_RUN) )
             this.isReadyToRun = true;
     }
 
@@ -149,7 +149,8 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
                                         TransportationTypeHandle theTransport,
                                         LogicalTime time,
                                         OrderType receivedOrdering,
-                                        SupplementalReflectInfo reflectInfo ) throws FederateInternalError
+                                        SupplementalReflectInfo reflectInfo )
+            throws FederateInternalError
     {
         StringBuilder builder = new StringBuilder( "Reflection for object:" );
 
@@ -159,10 +160,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
         builder.append( ", tag=" + new String(tag) );
         // print the time (if we have it) we'll get null if we are just receiving
         // a forwarded call from the other reflect callback above
-        if( time != null )
-        {
-            builder.append( ", time=" + ((HLAfloat64Time)time).getValue() );
-        }
+
 
         // print the attribute information
         builder.append( ", attributeCount=" + theAttributes.size() );
@@ -172,70 +170,8 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
             // print the attibute handle
             builder.append( "\tattributeHandle=" );
 
-            if( attributeHandle.equals(federate.freeHandle) )
-            {
-                builder.append( attributeHandle );
-                builder.append( " (Free)    " );
-                builder.append( ", attributeValue=" );
-                HLAboolean free = new HLA1516eBoolean();
-                try
-                {
-                    free.decode(theAttributes.get(attributeHandle));
-                } catch (DecoderException e)
-                {
-                    e.printStackTrace();
-                }
-                builder.append( free.getValue() );
-                federate.airstripFree = free.getValue();
-            }
-            if( attributeHandle.equals(federate.freeWindowHandle) )
-            {
-                builder.append( attributeHandle );
-                builder.append( " (FreeWindow)    " );
-                builder.append( ", attributeValue=" );
-                HLAfloat32BE freeWindow = new HLA1516eFloat32BE();
-                try
-                {
-                    freeWindow.decode(theAttributes.get(attributeHandle));
-                } catch (DecoderException e)
-                {
-                    e.printStackTrace();
-                }
-                builder.append( freeWindow.getValue() );
-                federate.airstripFreeWindow = freeWindow.getValue();
-            }
-            if( attributeHandle.equals(federate.availablePassengerHandle) )
-            {
-                builder.append( attributeHandle );
-                builder.append( " (availablePassenger)" );
-                builder.append( ", attributeValue=" );
-                HLAinteger32BE availablePassenger = new HLA1516eInteger32BE();
-                try
-                {
-                    availablePassenger.decode(theAttributes.get(attributeHandle));
-                } catch (DecoderException e)
-                {
-                    e.printStackTrace();
-                }
-                builder.append( availablePassenger.getValue() );
-                federate.availablePassenger = availablePassenger.getValue();
-            }
-            if( attributeHandle.equals(federate.availableSpecialHandle) )
-            {
-                builder.append( attributeHandle );
-                builder.append( " (availableSpecial)" );
-                builder.append( ", attributeValue=" );
-                HLAinteger32BE availableSpecial = new HLA1516eInteger32BE();
-                try
-                {
-                    availableSpecial.decode(theAttributes.get(attributeHandle));
-                } catch (DecoderException e)
-                {
-                    e.printStackTrace();
-                }
-                builder.append( availableSpecial.getValue() );
-                federate.availableSpecial = availableSpecial.getValue();
-            }
+            // if we're dealing with Flavor, decode into the appropriate enum value
+
             builder.append( "\n" );
         }
 
@@ -272,22 +208,81 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
                                     TransportationTypeHandle theTransport,
                                     LogicalTime time,
                                     OrderType receivedOrdering,
-                                    SupplementalReceiveInfo receiveInfo ) throws FederateInternalError
+                                    SupplementalReceiveInfo receiveInfo )
+            throws FederateInternalError
     {
         StringBuilder builder = new StringBuilder( "Interaction Received:" );
+
         // print the handle
         builder.append( " handle=" + interactionClass );
-        if( interactionClass.equals(federate.appearHandle) )
-        {
-            builder.append( " (appearHandle)" );
-        }
         if( interactionClass.equals(federate.landingHandle) )
         {
-            builder.append( " (landingHandle)" );
-        }
-        if( interactionClass.equals(federate.forwardHandle) )
-        {
-            builder.append( " (forwardHandle)" );
+            int idValue = 0;
+            int typeValue = 0;
+            float durationValue = 0;
+            boolean emergencyValue = false;
+            builder.append( " (Landing)" );
+            for( ParameterHandle parameter : theParameters.keySet() )
+            {
+                if (parameter.equals(federate.idHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.idHandle);
+                    HLAinteger32BE id = new HLA1516eInteger32BE();
+                    try
+                    {
+                        id.decode(bytes);
+                    } catch (DecoderException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    idValue = id.getValue();
+                    builder.append( "\tid Value=" + idValue );
+                }
+                if (parameter.equals(federate.typeHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.typeHandle);
+                    HLAinteger32BE type = new HLA1516eInteger32BE();
+                    try
+                    {
+                        type.decode(bytes);
+                    } catch (DecoderException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    typeValue = type.getValue();
+                    builder.append( "\ttype Value=" + typeValue );
+                }
+                if (parameter.equals(federate.durationHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.durationHandle);
+                    HLAfloat32BE duration = new HLA1516eFloat32BE();
+                    try
+                    {
+                        duration.decode(bytes);
+                    } catch (DecoderException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    durationValue = duration.getValue();
+                    builder.append( "\tduration Value=" + durationValue );
+                }
+                if (parameter.equals(federate.emergencyHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.emergencyHandle);
+                    HLAboolean emergency = new HLA1516eBoolean();
+                    try
+                    {
+                        emergency.decode(bytes);
+                    } catch (DecoderException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    emergencyValue = emergency.getValue();
+                    builder.append( "\temergency Value=" + emergencyValue );
+                }
+            }
+            Plane plane = new Plane(idValue, typeValue,0, 0);
+            federate.airport.land(plane, (float) federateTime, durationValue);
         }
 
         // print the tag
@@ -302,17 +297,6 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
         // print the parameer information
         builder.append( ", parameterCount=" + theParameters.size() );
         builder.append( "\n" );
-        for( ParameterHandle parameter : theParameters.keySet() )
-        {
-            // print the parameter handle
-            builder.append( "\tparamHandle=" );
-            builder.append( parameter );
-            // print the parameter value
-            builder.append( ", paramValue=" );
-            builder.append( theParameters.get(parameter).length );
-            builder.append( " bytes" );
-            builder.append( "\n" );
-        }
 
         log( builder.toString() );
     }

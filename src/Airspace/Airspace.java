@@ -19,13 +19,14 @@ public class Airspace
         this.landingQueue = new PriorityQueue<>(new PlaneFuelComparator());
         this.timeToNext = random.nextInt(29)+1;
     }
-    public Plane appear()
+    public Plane appear(float curentTime)
     {
-        timeToNext = random.nextInt(29)+1;
+        timeToNext = random.nextInt(29)+1 + curentTime;
         currentId = currentId + 1;
         int type = random.nextInt(2);
         float fuel = random.nextInt(59)+1;
-        Plane plane = new Plane(currentId, type, fuel);
+        float duration = random.nextInt(14)+1;
+        Plane plane = new Plane(currentId, type, duration, fuel);
         landingQueue.add(plane);
         return plane;
     }
@@ -42,9 +43,26 @@ public class Airspace
     {
         for (Plane p : landingQueue )
         {
-            System.out.println(p);
+            p.setFuel(p.getFuel() - time);
         }
-        System.out.println("\n");
+    }
+    public boolean needEmergencyLanding()
+    {
+        if (landingQueue.size() != 0)
+        {
+            if (landingQueue.peek().getFuel() < 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
     }
     public int getLandingQueueSize()
     {
@@ -54,4 +72,5 @@ public class Airspace
     {
         return timeToNext;
     }
+    public float getDuration(){return landingQueue.peek().getDuration();}
 }

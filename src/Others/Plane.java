@@ -4,12 +4,14 @@ public class Plane
 {
     private int id;
     private int type;
+    private float duration;
     private float fuel;
     private float startTime;
-    public Plane(int id, int type, float fuel)
+    public Plane(int id, int type,float duration, float fuel)
     {
         this.id = id;
         this.type = type;
+        this.duration = duration;
         this.fuel = fuel;
         this.startTime = 0;
     }
@@ -21,11 +23,13 @@ public class Plane
     {
         return this.type;
     }
+    public float getDuration() {return this.duration;}
     public float getFuel()
     {
         return this.fuel;
     }
     public void setFuel(float fuel) {this.fuel = fuel;}
+    public void setDuration(float duration){this.duration = duration;}
     public float getStartTime()
     {
         return this.startTime;

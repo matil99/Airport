@@ -27,6 +27,17 @@
 					<semantics>Zajętość pasa startowego</semantics>
 				</attribute>
 				<attribute>
+					<name>freeWindow</name>
+					<dataType> HLAfloat32BE</dataType>
+					<updateType>Conditional</updateType>
+					<updateCondition>On Change</updateCondition>
+					<ownership>Divest</ownership>
+					<sharing>PublishSubscribe</sharing>
+					<transportation>HLAreliable</transportation>
+					<order>Receive</order>
+					<semantics>Czas na wylądowanie</semantics>
+				</attribute>
+				<attribute>
 					<name>availablePassenger</name>
 					<dataType>HLAinteger32BE</dataType>
 					<updateType>Conditional</updateType>
@@ -71,11 +82,6 @@
 					<transportation>HLAreliable</transportation>
 					<order>Receive</order>
 					<semantics>Pojawienie się samolotu w przestrzeni powietrznej</semantics>
-					<parameter>
-						<name> fuel </name>
-						<dataType>HLAfloat32BE</dataType>
-						<semantics>Liczba jednostek dostępnego paliwa</semantics>
-					</parameter>
 				</interactionClass>
 				<interactionClass>
 					<name>Forward</name>
@@ -90,6 +96,33 @@
 					<transportation>HLAreliable</transportation>
 					<order>Receive</order>
 					<semantics>Lądowanie samolotu na lotnisku</semantics>
+					<parameter>
+						<name>type</name>
+						<dataType>HLAinteger32BE</dataType>
+						<semantics>Typ samolotu</semantics>
+					</parameter>
+					<parameter>
+						<name> duration </name>
+						<dataType>HLAfloat32BE</dataType>
+						<semantics>Czas trwania lądowania</semantics>
+					</parameter>
+					<parameter>
+						<name> emergency </name>
+						<dataType> HLAboolean</dataType>
+						<semantics>Lądowanie awaryjne</semantics>
+					</parameter>
+				</interactionClass>
+				<interactionClass>
+					<name>EmergencyLanding</name>
+					<sharing>PublishSubscribe</sharing>
+					<transportation>HLAreliable</transportation>
+					<order>Receive</order>
+					<semantics>Awaryjne lądowanie samolotu na lotnisku</semantics>
+					<parameter>
+						<name>type</name>
+						<dataType>HLAinteger32BE</dataType>
+						<semantics>Typ samolotu</semantics>
+					</parameter>
 					<parameter>
 						<name> duration </name>
 						<dataType>HLAfloat32BE</dataType>

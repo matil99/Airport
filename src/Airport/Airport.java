@@ -20,22 +20,64 @@ public class Airport extends JFrame
     private int maxPassengerPlanes;
     private int maxSpecialPlanes;
     private boolean free;
+    private float releseTime;
+
+    /*GUI variables*/
     private JLabel lPassengerTerminal, lSpecialTerminal, lStartSchedule;
     private ArrayList<JLabel> lStarts= new ArrayList<>();
     private ArrayList<JLabel> lStartsTime= new ArrayList<>();
 
-    public Airport(int maxPassengerPlanes, int maxSpecialPlanes)
+    public Airport(int maxPassengerPlanes, int maxSpecialPlanes, int planesInQueue)
     {
         this.maxPassengerPlanes = maxPassengerPlanes;
         this.maxSpecialPlanes = maxSpecialPlanes;
-        this.free = true;
+        this.free = false;
+        int  n = random.nextInt(1000) + 500;
+        for (int i = n; i < n + planesInQueue; i++)
+        {
+            Plane plane = new Plane(i, random.nextInt(2), random.nextInt(29)+1, 0);
+            plane.setStartTime(random.nextInt(159) + 1);
+            addPlane(plane);
+        }
+        this.releseTime = getTakeOffTime();
+        System.out.println(getAvailablePassenger());
+        System.out.println(getAvailableSpecial());
         this.init();
     }
-    public void land(Plane plane, float time) throws InterruptedException
+    public boolean getFree()
     {
-        free = false;
-        this.repaint();
-        Thread.sleep(250);
+        return free;
+    }
+    public float getReleseTime()
+    {
+        return releseTime;
+    }
+    public float getTakeOffTime()
+    {
+        if (takeOffQueue.size() != 0)
+        {
+            return takeOffQueue.peek().getStartTime();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    public int getAvailablePassenger()
+    {
+        int available = maxPassengerPlanes - passengerTerminal.size();
+        if (available > 0) return available;
+        else return 0;
+
+    }
+    public int getAvailableSpecial()
+    {
+        int available = maxSpecialPlanes - specialTerminal.size();
+        if (available > 0) return available;
+        else return 0;
+    }
+    private void addPlane(Plane plane)
+    {
         if (plane.getType() == 0)
         {
             passengerTerminal.add(plane);
@@ -44,19 +86,46 @@ public class Airport extends JFrame
         {
             specialTerminal.add(plane);
         }
-        int takeOffTime = random.nextInt(29)+1;
-        plane.setStartTime(time + takeOffTime);
-        plane.setFuel(0);
         takeOffQueue.add(plane);
-        free = true;
-        this.repaint();
     }
-    public void takeOff() throws InterruptedException
+    public void land(Plane plane, float time, float duration)
     {
         free = false;
+        releseTime = time + duration;
+        if (plane.getType() == 0)
+        {
+            passengerTerminal.add(plane);
+        }
+        if (plane.getType() == 1)
+        {
+            specialTerminal.add(plane);
+        }
+        int takeOffTime = random.nextInt(119)+1;
+        int takeOffDuration = random.nextInt(29)+1;
+        plane.setStartTime(time + takeOffTime);
+        plane.setDuration(takeOffDuration);
+        plane.setFuel(0);
+        takeOffQueue.add(plane);
+        if (passengerTerminal.size() + specialTerminal.size() != takeOffQueue.size())
+        {
+            System.out.println("Auuuuuuuuu");
+        }
         this.repaint();
-        Thread.sleep(250);
+    }
+    public void relese()
+    {
+        free = true;
+        repaint();
+    }
+    public int getTakeOffQueueSize()
+    {
+        return takeOffQueue.size();
+    }
+    public Plane takeOff(float time)
+    {
+        free = false;
         Plane plane = takeOffQueue.poll();
+        releseTime = time + plane.getDuration();
         if (plane.getType() == 0)
         {
             passengerTerminal.remove(plane);
@@ -65,19 +134,8 @@ public class Airport extends JFrame
         {
             specialTerminal.remove(plane);
         }
-        System.out.println("Start samolotu: " + plane);
         this.repaint();
-    }
-    public float getStartTime()
-    {
-        if (takeOffQueue.size() != 0)
-        {
-        return takeOffQueue.peek().getStartTime();
-        }
-        else
-        {
-            return Integer.MAX_VALUE;
-        }
+        return plane;
     }
     public void init()
     {
@@ -126,10 +184,16 @@ public class Airport extends JFrame
         g.setColor(Color.BLACK);
         g.drawRect(50,150,250,100); /*Terminal pasażerski - pusty*/
         g.drawRect(350,150,250,100); /*Terminal specjalny - pusty*/
+        g.setColor(Color.WHITE);
+        g.fillRect(50,150,250,100); /*Terminal pasażerski - pusty*/
+        g.fillRect(350,150,250,100); /*Terminal specjalny - pusty*/
     }
     public void updateTerminal(Graphics g)
     {
         int heightPassenger, heightSpecial;
+        g.setColor(Color.WHITE);
+        g.fillRect(50,150,250,100); /*Terminal pasażerski - pusty*/
+        g.fillRect(350,150,250,100); /*Terminal specjalny - pusty*/
         g.setColor(Color.GREEN);
         heightPassenger  = (int)(((float)passengerTerminal.size()/(float)maxPassengerPlanes)*100); /*Wysokość według zajętości terminala*/
         heightSpecial = (int)(((float)specialTerminal.size()/(float)maxSpecialPlanes)*100);
