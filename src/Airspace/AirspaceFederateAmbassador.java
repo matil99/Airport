@@ -171,12 +171,10 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
         {
             // print the attibute handle
             builder.append( "\tattributeHandle=" );
-
             if( attributeHandle.equals(federate.freeHandle) )
             {
                 builder.append( attributeHandle );
-                builder.append( " (Free)    " );
-                builder.append( ", attributeValue=" );
+                builder.append( ". Free: " );
                 HLAboolean free = new HLA1516eBoolean();
                 try
                 {
@@ -191,8 +189,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
             if( attributeHandle.equals(federate.freeWindowHandle) )
             {
                 builder.append( attributeHandle );
-                builder.append( " (FreeWindow)    " );
-                builder.append( ", attributeValue=" );
+                builder.append( "FreeWindow: " );
                 HLAfloat32BE freeWindow = new HLA1516eFloat32BE();
                 try
                 {
@@ -207,8 +204,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
             if( attributeHandle.equals(federate.availablePassengerHandle) )
             {
                 builder.append( attributeHandle );
-                builder.append( " (availablePassenger)" );
-                builder.append( ", attributeValue=" );
+                builder.append( "availablePassenger: " );
                 HLAinteger32BE availablePassenger = new HLA1516eInteger32BE();
                 try
                 {
@@ -223,8 +219,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
             if( attributeHandle.equals(federate.availableSpecialHandle) )
             {
                 builder.append( attributeHandle );
-                builder.append( " (availableSpecial)" );
-                builder.append( ", attributeValue=" );
+                builder.append( "availableSpecial: " );
                 HLAinteger32BE availableSpecial = new HLA1516eInteger32BE();
                 try
                 {

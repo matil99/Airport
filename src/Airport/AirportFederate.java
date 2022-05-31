@@ -50,7 +50,6 @@ public class AirportFederate
     protected ParameterHandle idHandle;
     protected ParameterHandle typeHandle;
     protected ParameterHandle durationHandle;
-    protected ParameterHandle emergencyHandle;
     protected ParameterHandle delayHandle;
 
     protected Airport airport;
@@ -216,7 +215,7 @@ public class AirportFederate
             {
                 airport.relese();
                 log("Airstrip is now free.");
-            };
+            }
             if (airport.getFree() && (fedamb.federateTime >= airport.getTakeOffTime()) && airport.getTakeOffQueueSize() != 0)
             {
                 Plane plane = airport.takeOff((float) fedamb.federateTime);
@@ -343,26 +342,13 @@ public class AirportFederate
 //
         rtiamb.publishObjectClassAttributes( airstripHandle, attributes );
 
-        /*
-        //get count parameter for ProductsManagment Interaction
-        countHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.ProductsManagment" ), "count");
 
-        // subscribe for AddProducts interaction
-        */
         String iname = "HLAinteractionRoot.PlanesManagment.Landing";
         landingHandle = rtiamb.getInteractionClassHandle( iname );
         idHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"), "id");
         typeHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"), "type");
         durationHandle  = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"),"duration");
-        emergencyHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"), "emergency");
         rtiamb.subscribeInteractionClass(landingHandle);
-        /*
-        // subscribe for GetProducts interaction
-        iname = "HLAinteractionRoot.ProductsManagment.GetProducts";
-        getProductsHandle = rtiamb.getInteractionClassHandle( iname );
-        countHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.ProductsManagment" ), "count");
-        rtiamb.subscribeInteractionClass(getProductsHandle);
-         */
     }
 
     /**

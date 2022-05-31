@@ -236,7 +236,7 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
                         e.printStackTrace();
                     }
                     idValue = id.getValue();
-                    builder.append( "\tid Value=" + idValue );
+                    builder.append( "\tID: " + idValue );
                 }
                 if (parameter.equals(federate.typeHandle))
                 {
@@ -250,7 +250,7 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
                         e.printStackTrace();
                     }
                     typeValue = type.getValue();
-                    builder.append( "\ttype Value=" + typeValue );
+                    builder.append( "\tType:" + typeValue );
                 }
                 if (parameter.equals(federate.durationHandle))
                 {
@@ -264,21 +264,7 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
                         e.printStackTrace();
                     }
                     durationValue = duration.getValue();
-                    builder.append( "\tduration Value=" + durationValue );
-                }
-                if (parameter.equals(federate.emergencyHandle))
-                {
-                    byte[] bytes = theParameters.get(federate.emergencyHandle);
-                    HLAboolean emergency = new HLA1516eBoolean();
-                    try
-                    {
-                        emergency.decode(bytes);
-                    } catch (DecoderException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    emergencyValue = emergency.getValue();
-                    builder.append( "\temergency Value=" + emergencyValue );
+                    builder.append( "\tDuration: " + durationValue );
                 }
             }
             Plane plane = new Plane(idValue, typeValue,0, 0);

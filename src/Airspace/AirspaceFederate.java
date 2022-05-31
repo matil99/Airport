@@ -39,6 +39,7 @@ public class AirspaceFederate
     protected InteractionClassHandle appearHandle;
     protected InteractionClassHandle forwardHandle;
     protected InteractionClassHandle landingHandle;
+    protected InteractionClassHandle emergencyLandingHandle;
 
     protected int availablePassenger;
     protected int availableSpecial;
@@ -208,7 +209,7 @@ public class AirspaceFederate
                 log(plane + " appeared.");
                 if (plane.getType() == 0)
                 {
-                    if (availablePassenger <= 0)
+                    if (availablePassenger <= 1)
                     {
                         parameterHandleValueMap = rtiamb.getParameterHandleValueMapFactory().create(1);
                         ParameterHandle forwardIdHandle = rtiamb.getParameterHandle(forwardHandle, "id");
@@ -216,12 +217,12 @@ public class AirspaceFederate
                         parameterHandleValueMap.put(forwardIdHandle, id.toByteArray());
                         rtiamb.sendInteraction(forwardHandle, parameterHandleValueMap, generateTag());
                         airspace.forward(plane);
-                        log(plane + " is being forwarded to the other airport. [" + availablePassenger + "]");
+                        log(plane + " is being forwarded to the other airport.");
                     }
                 }
                 if (plane.getType() == 1)
                 {
-                    if (availableSpecial <= 0)
+                    if (availableSpecial <= 1)
                     {
                         parameterHandleValueMap = rtiamb.getParameterHandleValueMapFactory().create(1);
                         ParameterHandle forwardIdHandle = rtiamb.getParameterHandle(forwardHandle, "id");
@@ -229,21 +230,15 @@ public class AirspaceFederate
                         parameterHandleValueMap.put(forwardIdHandle, id.toByteArray());
                         rtiamb.sendInteraction(forwardHandle, parameterHandleValueMap, generateTag());
                         airspace.forward(plane);
-                        log(plane + " is being forwarded to the other airport. [" + availableSpecial + "]");
+                        log(plane + " is being forwarded to the other airport.");
                     }
                 }
             }
             /*Awaryjne lądowanie*/
-            if (airspace.needEmergencyLanding())
+            if (airspace.needEmergencyLanding() && airstripFree)
             {
-                log("Need emergnecy landing.");
-            }
-
-            /*Klasyczne lądowanie*/
-            if (airstripFree && (airspace.getLandingQueueSize() != 0) && airspace.getDuration() <= airstripFreeWindow)
-            {
-                Plane p = airspace.land();
-                ParameterHandleValueMap parameterHandleValueMap = rtiamb.getParameterHandleValueMapFactory().create(4);
+                /*Plane p = airspace.land();
+                ParameterHandleValueMap parameterHandleValueMap = rtiamb.getParameterHandleValueMapFactory().create(3);
                 ParameterHandle landingIdHandle = rtiamb.getParameterHandle(landingHandle, "id");
                 HLAinteger32BE id = encoderFactory.createHLAinteger32BE(p.getId());
                 parameterHandleValueMap.put(landingIdHandle, id.toByteArray());
@@ -256,12 +251,59 @@ public class AirspaceFederate
                 HLAfloat32BE duration = encoderFactory.createHLAfloat32BE(p.getDuration());
                 parameterHandleValueMap.put(landingDurationHandle, duration.toByteArray());
 
-                ParameterHandle landingEmergencyHandle = rtiamb.getParameterHandle(landingHandle, "emergency");
-                HLAboolean emergency = encoderFactory.createHLAboolean(false);
-                parameterHandleValueMap.put(landingEmergencyHandle, emergency.toByteArray());
+                rtiamb.sendInteraction(emergencyLandingHandle, parameterHandleValueMap, generateTag());*/
+                log("Need emergency landing.");
+            }
+            if (airspace.landingQueue.size() != 0)
+            {
+                if (airspace.landingQueue.peek().getType() == 0)
+                {
+                    /*Lądowanie samolotu pasażerskiego*/
+                    if (airstripFree && airspace.getDuration() <= airstripFreeWindow && availablePassenger > 0)
+                    {
+                        Plane p = airspace.land();
+                        airstripFree = false;
+                        ParameterHandleValueMap parameterHandleValueMap = rtiamb.getParameterHandleValueMapFactory().create(3);
+                        ParameterHandle landingIdHandle = rtiamb.getParameterHandle(landingHandle, "id");
+                        HLAinteger32BE id = encoderFactory.createHLAinteger32BE(p.getId());
+                        parameterHandleValueMap.put(landingIdHandle, id.toByteArray());
 
-                rtiamb.sendInteraction(landingHandle, parameterHandleValueMap, generateTag());
-                log(p + " is landing");
+                        ParameterHandle landingTypeHandle = rtiamb.getParameterHandle(landingHandle, "type");
+                        HLAinteger32BE type = encoderFactory.createHLAinteger32BE(p.getType());
+                        parameterHandleValueMap.put(landingTypeHandle, type.toByteArray());
+
+                        ParameterHandle landingDurationHandle = rtiamb.getParameterHandle(landingHandle, "duration");
+                        HLAfloat32BE duration = encoderFactory.createHLAfloat32BE(p.getDuration());
+                        parameterHandleValueMap.put(landingDurationHandle, duration.toByteArray());
+
+                        rtiamb.sendInteraction(landingHandle, parameterHandleValueMap, generateTag());
+                        log(p + " is landing");
+                    }
+                }
+                else if (airspace.landingQueue.peek().getType() == 1)
+                {
+                    /*Lądowanie samolotu specjallnego*/
+                    if (airstripFree && airspace.getDuration() <= airstripFreeWindow && availableSpecial > 0)
+                    {
+                        Plane p = airspace.land();
+                        airstripFree = false;
+                        ParameterHandleValueMap parameterHandleValueMap = rtiamb.getParameterHandleValueMapFactory().create(3);
+                        ParameterHandle landingIdHandle = rtiamb.getParameterHandle(landingHandle, "id");
+                        HLAinteger32BE id = encoderFactory.createHLAinteger32BE(p.getId());
+                        parameterHandleValueMap.put(landingIdHandle, id.toByteArray());
+
+                        ParameterHandle landingTypeHandle = rtiamb.getParameterHandle(landingHandle, "type");
+                        HLAinteger32BE type = encoderFactory.createHLAinteger32BE(p.getType());
+                        parameterHandleValueMap.put(landingTypeHandle, type.toByteArray());
+
+                        ParameterHandle landingDurationHandle = rtiamb.getParameterHandle(landingHandle, "duration");
+                        HLAfloat32BE duration = encoderFactory.createHLAfloat32BE(p.getDuration());
+                        parameterHandleValueMap.put(landingDurationHandle, duration.toByteArray());
+
+                        rtiamb.sendInteraction(landingHandle, parameterHandleValueMap, generateTag());
+                        log(p + " is landing");
+                    }
+                }
             }
             // 9.3 request a time advance and wait until we get it
             airspace.updateFuel(1);
@@ -283,7 +325,7 @@ public class AirspaceFederate
         //       remain. in that case we'll leave it for them to clean up
         try
         {
-            rtiamb.destroyFederationExecution( "ExampleFederation" );
+            rtiamb.destroyFederationExecution( "AirportFederation" );
             log( "Destroyed Federation" );
         }
         catch( FederationExecutionDoesNotExist dne )
@@ -370,6 +412,11 @@ public class AirspaceFederate
         String landing = "HLAinteractionRoot.PlanesManagment.Landing";
         landingHandle = rtiamb.getInteractionClassHandle( landing );
         rtiamb.publishInteractionClass(landingHandle);
+
+        // publish emergency landing Interaction
+        String emergencyLanding = "HLAinteractionRoot.PlanesManagment.EmergencyLanding";
+        emergencyLandingHandle = rtiamb.getInteractionClassHandle( emergencyLanding );
+        rtiamb.publishInteractionClass(emergencyLandingHandle);
     }
     /**
      * This method will request a time advance to the current time, plus the given

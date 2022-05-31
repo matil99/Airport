@@ -106,11 +106,6 @@
 						<dataType>HLAfloat32BE</dataType>
 						<semantics>Czas trwania lądowania</semantics>
 					</parameter>
-					<parameter>
-						<name> emergency </name>
-						<dataType> HLAboolean</dataType>
-						<semantics>Lądowanie awaryjne</semantics>
-					</parameter>
 				</interactionClass>
 				<interactionClass>
 					<name>EmergencyLanding</name>
@@ -127,11 +122,6 @@
 						<name> duration </name>
 						<dataType>HLAfloat32BE</dataType>
 						<semantics>Czas trwania lądowania</semantics>
-					</parameter>
-					<parameter>
-						<name> emergency </name>
-						<dataType> HLAboolean</dataType>
-						<semantics>Lądowanie awaryjne</semantics>
 					</parameter>
 				</interactionClass>
 				<interactionClass>

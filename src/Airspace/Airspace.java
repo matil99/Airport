@@ -8,10 +8,10 @@ import java.util.Random;
 
 public class Airspace
 {
-    private float timeToNext;
-    private int currentId;
-    private PriorityQueue<Plane> landingQueue;
-    private Random random;
+    protected float timeToNext;
+    protected int currentId;
+    protected PriorityQueue<Plane> landingQueue;
+    protected Random random;
     public Airspace()
     {
         this.currentId = 0;

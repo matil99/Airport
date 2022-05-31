@@ -17,6 +17,7 @@ public class Airport extends JFrame
     private ArrayList<Plane> passengerTerminal = new ArrayList<>();
     private ArrayList<Plane> specialTerminal = new ArrayList<>();
     private Random random = new Random();
+    private int planesCount;
     private int maxPassengerPlanes;
     private int maxSpecialPlanes;
     private boolean free;
@@ -31,15 +32,17 @@ public class Airport extends JFrame
     {
         this.maxPassengerPlanes = maxPassengerPlanes;
         this.maxSpecialPlanes = maxSpecialPlanes;
+        this.planesCount = 0;
         this.free = false;
         int  n = random.nextInt(1000) + 500;
         for (int i = n; i < n + planesInQueue; i++)
         {
-            Plane plane = new Plane(i, random.nextInt(2), random.nextInt(29)+1, 0);
-            plane.setStartTime(random.nextInt(159) + 1);
+            Plane plane = new Plane(i, random.nextInt(2), 50, 0);
+            plane.setStartTime(planesCount * 100);
+            planesCount++;
             addPlane(plane);
         }
-        this.releseTime = getTakeOffTime();
+        this.releseTime = 0;
         System.out.println(getAvailablePassenger());
         System.out.println(getAvailableSpecial());
         this.init();
@@ -100,16 +103,12 @@ public class Airport extends JFrame
         {
             specialTerminal.add(plane);
         }
-        int takeOffTime = random.nextInt(119)+1;
-        int takeOffDuration = random.nextInt(29)+1;
-        plane.setStartTime(time + takeOffTime);
+        int takeOffTime = (planesCount+1) * 100;
+        int takeOffDuration = 50;
+        plane.setStartTime(takeOffTime);
         plane.setDuration(takeOffDuration);
         plane.setFuel(0);
         takeOffQueue.add(plane);
-        if (passengerTerminal.size() + specialTerminal.size() != takeOffQueue.size())
-        {
-            System.out.println("Auuuuuuuuu");
-        }
         this.repaint();
     }
     public void relese()
@@ -198,7 +197,7 @@ public class Airport extends JFrame
         heightPassenger  = (int)(((float)passengerTerminal.size()/(float)maxPassengerPlanes)*100); /*Wysokość według zajętości terminala*/
         heightSpecial = (int)(((float)specialTerminal.size()/(float)maxSpecialPlanes)*100);
         lPassengerTerminal.setText("Terminal pasażerski [" + passengerTerminal.size() + "/" + maxPassengerPlanes + "]");
-        lSpecialTerminal.setText("Terminal specjalny [" + specialTerminal.size() + "/" + maxPassengerPlanes + "]");
+        lSpecialTerminal.setText("Terminal specjalny [" + specialTerminal.size() + "/" + maxSpecialPlanes + "]");
         g.fillRect(50,150,250, heightPassenger);
         g.fillRect(350,150,250, heightSpecial);
     }
