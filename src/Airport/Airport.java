@@ -18,9 +18,12 @@ public class Airport extends JFrame
     private ArrayList<Plane> specialTerminal = new ArrayList<>();
     private Random random = new Random();
     private int planesCount;
+    private int direction;
+
+    /*HLA Airstrip*/
+    private boolean free;
     private int maxPassengerPlanes;
     private int maxSpecialPlanes;
-    private boolean free;
     private float releseTime;
 
     /*GUI variables*/
@@ -32,8 +35,9 @@ public class Airport extends JFrame
     {
         this.maxPassengerPlanes = maxPassengerPlanes;
         this.maxSpecialPlanes = maxSpecialPlanes;
-        this.planesCount = 0;
+        this.planesCount = 1;
         this.free = false;
+        this.direction = 0;
         int  n = random.nextInt(1000) + 500;
         for (int i = n; i < n + planesInQueue; i++)
         {
@@ -43,8 +47,6 @@ public class Airport extends JFrame
             addPlane(plane);
         }
         this.releseTime = 0;
-        System.out.println(getAvailablePassenger());
-        System.out.println(getAvailableSpecial());
         this.init();
     }
     public boolean getFree()
@@ -95,6 +97,7 @@ public class Airport extends JFrame
     {
         free = false;
         releseTime = time + duration;
+        direction = 1;
         if (plane.getType() == 0)
         {
             passengerTerminal.add(plane);
@@ -114,6 +117,7 @@ public class Airport extends JFrame
     public void relese()
     {
         free = true;
+        direction = 0;
         repaint();
     }
     public int getTakeOffQueueSize()
@@ -123,6 +127,7 @@ public class Airport extends JFrame
     public Plane takeOff(float time)
     {
         free = false;
+        direction = -1;
         Plane plane = takeOffQueue.poll();
         releseTime = time + plane.getDuration();
         if (plane.getType() == 0)
@@ -177,6 +182,7 @@ public class Airport extends JFrame
         updateStartSchedule(g);
         drawAirStrip(g);
         updateLights(g);
+        updateDirection(g);
     }
     public void drawTerminal(Graphics g)
     {
@@ -258,6 +264,29 @@ public class Airport extends JFrame
             g.fillOval(50,400,50,50);
             g.setColor(Color.RED);
             g.fillOval(100,400,50,50);
+        }
+    }
+    public void updateDirection(Graphics g)
+    {
+
+        g.setColor(Color.BLACK);
+        g.drawRect(550,400,50,50);
+        g.setColor(Color.WHITE);
+        g.fillRect(550,400,50,50);
+        if (direction == -1)
+        {
+            g.setColor(Color.GREEN);
+            g.fillPolygon(new int[] {550, 575, 600}, new int[] {450, 400, 450}, 3);
+        }
+        if (direction == 1)
+        {
+            g.setColor(Color.GREEN);
+            g.fillPolygon(new int[] {550, 575, 600}, new int[] {400, 450, 400}, 3);
+        }
+        if (direction == 0)
+        {
+            g.setColor(Color.WHITE);
+            g.fillRect(550,400,50,50);
         }
     }
 

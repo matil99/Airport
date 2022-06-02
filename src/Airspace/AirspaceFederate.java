@@ -259,7 +259,7 @@ public class AirspaceFederate
                 if (airspace.landingQueue.peek().getType() == 0)
                 {
                     /*Lądowanie samolotu pasażerskiego*/
-                    if (airstripFree && airspace.getDuration() <= airstripFreeWindow && availablePassenger > 0)
+                    if (airstripFree && airspace.getDuration() <= airstripFreeWindow && availablePassenger > 1)
                     {
                         Plane p = airspace.land();
                         airstripFree = false;
@@ -283,7 +283,7 @@ public class AirspaceFederate
                 else if (airspace.landingQueue.peek().getType() == 1)
                 {
                     /*Lądowanie samolotu specjallnego*/
-                    if (airstripFree && airspace.getDuration() <= airstripFreeWindow && availableSpecial > 0)
+                    if (airstripFree && airspace.getDuration() <= airstripFreeWindow && availableSpecial > 1)
                     {
                         Plane p = airspace.land();
                         airstripFree = false;
