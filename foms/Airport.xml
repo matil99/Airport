@@ -125,7 +125,7 @@
 					</parameter>
 				</interactionClass>
 				<interactionClass>
-					<name>Takeoff</name>
+					<name>TakeOff</name>
 					<sharing>PublishSubscribe</sharing>
 					<transportation>HLAreliable</transportation>
 					<order>Receive</order>

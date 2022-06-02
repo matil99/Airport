@@ -174,7 +174,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
             if( attributeHandle.equals(federate.freeHandle) )
             {
                 builder.append( attributeHandle );
-                builder.append( ". Free: " );
+                builder.append( " Free: " );
                 HLAboolean free = new HLA1516eBoolean();
                 try
                 {
@@ -189,7 +189,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
             if( attributeHandle.equals(federate.freeWindowHandle) )
             {
                 builder.append( attributeHandle );
-                builder.append( "FreeWindow: " );
+                builder.append( " FreeWindow: " );
                 HLAfloat32BE freeWindow = new HLA1516eFloat32BE();
                 try
                 {
@@ -204,7 +204,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
             if( attributeHandle.equals(federate.availablePassengerHandle) )
             {
                 builder.append( attributeHandle );
-                builder.append( "availablePassenger: " );
+                builder.append( " AvailablePassenger: " );
                 HLAinteger32BE availablePassenger = new HLA1516eInteger32BE();
                 try
                 {
@@ -219,7 +219,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
             if( attributeHandle.equals(federate.availableSpecialHandle) )
             {
                 builder.append( attributeHandle );
-                builder.append( "availableSpecial: " );
+                builder.append( " AvailableSpecial: " );
                 HLAinteger32BE availableSpecial = new HLA1516eInteger32BE();
                 try
                 {
@@ -272,17 +272,10 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
         StringBuilder builder = new StringBuilder( "Interaction Received:" );
         // print the handle
         builder.append( " handle=" + interactionClass );
-        if( interactionClass.equals(federate.appearHandle) )
+        if (interactionClass.equals(federate.takeOffHandle))
         {
-            builder.append( " (appearHandle)" );
-        }
-        if( interactionClass.equals(federate.landingHandle) )
-        {
-            builder.append( " (landingHandle)" );
-        }
-        if( interactionClass.equals(federate.forwardHandle) )
-        {
-            builder.append( " (forwardHandle)" );
+            federate.airstripFree = false;
+            builder.append( " (takeOffHandle)" );
         }
 
         // print the tag

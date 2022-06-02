@@ -3,6 +3,7 @@ package Airspace;
 import Others.Plane;
 import Others.PlaneFuelComparator;
 
+import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Random;
 
@@ -24,8 +25,8 @@ public class Airspace
         timeToNext = random.nextInt(29)+1 + currentTime;
         currentId = currentId + 1;
         int type = random.nextInt(2);
-        float fuel = random.nextInt(59)+1;
-        float duration = random.nextInt(14)+1;
+        float fuel = random.nextInt(199)+1;
+        float duration = random.nextInt(49)+1;
         Plane plane = new Plane(currentId, type, duration, fuel);
         landingQueue.add(plane);
         return plane;
@@ -56,7 +57,32 @@ public class Airspace
             return false;
         }
     }
-
+    public int getSpecialCount()
+    {
+        int specialCounter = 0;
+        for (Iterator<Plane> it = landingQueue.iterator(); it.hasNext(); )
+        {
+            Plane plane = it.next();
+            if (plane.getType() == 1)
+            {
+                specialCounter++;
+            }
+        }
+        return specialCounter;
+    }
+    public int getPassengerCount()
+    {
+        int paseengerCounter = 0;
+        for (Iterator<Plane> it = landingQueue.iterator(); it.hasNext(); )
+        {
+            Plane plane = it.next();
+            if (plane.getType() == 0)
+            {
+                paseengerCounter++;
+            }
+        }
+        return paseengerCounter;
+    }
     public float getTimeToNext()
     {
         return timeToNext;

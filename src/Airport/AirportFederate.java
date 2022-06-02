@@ -39,10 +39,11 @@ public class AirportFederate
 
     // caches of handle types - set once we join a federation
     protected ObjectClassHandle airstripHandle;
+    protected ObjectInstanceHandle objectAirstrip;
     protected AttributeHandle freeHandle;
     protected AttributeHandle freeWindowHandle;
-    protected AttributeHandle avaliablePassengerHandle;
-    protected AttributeHandle avaliableSpecialHandle;
+    protected AttributeHandle availablePassengerHandle;
+    protected AttributeHandle availableSpecialHandle;
     protected InteractionClassHandle takeOffHandle;
     protected InteractionClassHandle landingHandle;
     protected InteractionClassHandle emergencyLandingHandle;
@@ -52,7 +53,6 @@ public class AirportFederate
     protected ParameterHandle emergencyIdHandle;
     protected ParameterHandle emergencyTypeHandle;
     protected ParameterHandle emergencyDurationHandle;
-    protected ParameterHandle delayHandle;
 
     protected Airport airport;
 
@@ -159,7 +159,7 @@ public class AirportFederate
         // but we don't care about that, as long as someone registered it
         rtiamb.registerFederationSynchronizationPoint( READY_TO_RUN, null );
         // wait until the point is announced
-        while( fedamb.isAnnounced == false )
+        while(!fedamb.isAnnounced)
         {
             rtiamb.evokeMultipleCallbacks( 0.1, 0.2 );
         }
@@ -177,7 +177,7 @@ public class AirportFederate
         // until the federation has synchronized on
         rtiamb.synchronizationPointAchieved( READY_TO_RUN );
         log( "Achieved sync point: " +READY_TO_RUN+ ", waiting for federation..." );
-        while( fedamb.isReadyToRun == false )
+        while(!fedamb.isReadyToRun)
         {
             rtiamb.evokeMultipleCallbacks( 0.1, 0.2 );
         }
@@ -201,8 +201,8 @@ public class AirportFederate
         /////////////////////////////////////
         // 9. register an object to update //
         /////////////////////////////////////
-        ObjectInstanceHandle objectHandle = rtiamb.registerObjectInstance( airstripHandle );
-        log( "Registered Aistrip, handle=" + objectHandle );
+        objectAirstrip = rtiamb.registerObjectInstance( airstripHandle );
+        log( "Registered Airstrip, handle=" + objectAirstrip );
 
         /////////////////////////////////////
         // 10. do the main simulation loop //
@@ -210,52 +210,22 @@ public class AirportFederate
         // here is where we do the meat of our work. in each iteration, we will
         // update the attribute values of the object we registered, and will
         // send an interaction.
-        airport = new Airport(40, 50, 20);
+        airport = new Airport(30, 25, 10);
         while( fedamb.isRunning )
         {
             if (airport.free && (fedamb.federateTime >= airport.getTakeOffTime()) && airport.getTakeOffQueueSize() != 0)
             {
-                airport.free = false;
                 Plane plane = airport.takeOff((float) fedamb.federateTime);
-                log(plane + " take off with deley " + (fedamb.federateTime - plane.getStartTime()));
+                takeOff(plane);
+                updateAirstrip();
             }
-
-            // update Airstrip parameters max and available to current values
-            AttributeHandleValueMap attributes = rtiamb.getAttributeHandleValueMapFactory().create(4);
-
-            HLAboolean freeValue = encoderFactory.createHLAboolean( airport.getFree());
-            attributes.put( freeHandle, freeValue.toByteArray() );
-
-            HLAfloat32BE freeWindowValue;
-            if (airport.getTakeOffQueueSize() == 0)
-            {
-                freeWindowValue = encoderFactory.createHLAfloat32BE((float) (Integer.MAX_VALUE));
-            }
-            else
-            {
-                float window = (float) (airport.getTakeOffTime() - fedamb.federateTime);
-                if (window < 0)
-                {
-                    window = 0;
-                }
-                freeWindowValue = encoderFactory.createHLAfloat32BE(window);
-            }
-            attributes.put( freeWindowHandle, freeWindowValue.toByteArray() );
-
-            HLAinteger32BE passengerValue = encoderFactory.createHLAinteger32BE( airport.getAvailablePassenger());
-            attributes.put( avaliablePassengerHandle, passengerValue.toByteArray() );
-
-            HLAinteger32BE specialValue = encoderFactory.createHLAinteger32BE( airport.getAvailableSpecial());
-            attributes.put( avaliableSpecialHandle, specialValue.toByteArray() );
-
-            rtiamb.updateAttributeValues( objectHandle, attributes, generateTag());
-
             if (fedamb.federateTime == airport.getReleaseTime())
             {
-                airport.relese();
+                airport.release();
+                updateAirstrip();
                 log("Airstrip is now free.");
             }
-
+            updateAirstripFreeWindow();
             advanceTime(1);
             log( "Time Advanced to " + fedamb.federateTime );
         }
@@ -313,7 +283,7 @@ public class AirportFederate
         this.rtiamb.enableTimeRegulation( lookahead );
 
         // tick until we get the callback
-        while( fedamb.isRegulating == false )
+        while(!fedamb.isRegulating)
         {
             rtiamb.evokeMultipleCallbacks( 0.1, 0.2 );
         }
@@ -324,11 +294,80 @@ public class AirportFederate
         this.rtiamb.enableTimeConstrained();
 
         // tick until we get the callback
-        while( fedamb.isConstrained == false )
+        while(!fedamb.isConstrained)
         {
             rtiamb.evokeMultipleCallbacks( 0.1, 0.2 );
         }
     }
+
+    private void updateAirstrip() throws Exception
+    {
+        // update Airstrip parameters max and available to current values
+        AttributeHandleValueMap attributes = rtiamb.getAttributeHandleValueMapFactory().create(4);
+
+        HLAboolean freeValue = encoderFactory.createHLAboolean( airport.getFree());
+        attributes.put( freeHandle, freeValue.toByteArray() );
+
+        HLAfloat32BE freeWindowValue;
+        if (airport.getTakeOffQueueSize() == 0)
+        {
+            freeWindowValue = encoderFactory.createHLAfloat32BE((float) (Integer.MAX_VALUE));
+        }
+        else
+        {
+            float window = (float) (airport.getTakeOffTime() - fedamb.federateTime);
+            if (window < 0)
+            {
+                window = 0;
+            }
+            freeWindowValue = encoderFactory.createHLAfloat32BE(window);
+        }
+        attributes.put( freeWindowHandle, freeWindowValue.toByteArray() );
+
+        HLAinteger32BE passengerValue = encoderFactory.createHLAinteger32BE( airport.getAvailablePassenger());
+        attributes.put(availablePassengerHandle, passengerValue.toByteArray() );
+
+        HLAinteger32BE specialValue = encoderFactory.createHLAinteger32BE( airport.getAvailableSpecial());
+        attributes.put(availableSpecialHandle, specialValue.toByteArray() );
+
+        rtiamb.updateAttributeValues( objectAirstrip, attributes, generateTag());
+    }
+    private void updateAirstripFreeWindow() throws Exception
+    {
+        // update Airstrip parameters max and available to current values
+        AttributeHandleValueMap attributes = rtiamb.getAttributeHandleValueMapFactory().create(1);
+
+        HLAfloat32BE freeWindowValue;
+        if (airport.getTakeOffQueueSize() == 0)
+        {
+            freeWindowValue = encoderFactory.createHLAfloat32BE((float) (Integer.MAX_VALUE));
+        }
+        else
+        {
+            float window = (float) (airport.getTakeOffTime() - fedamb.federateTime);
+            if (window < 0)
+            {
+                window = 0;
+            }
+            freeWindowValue = encoderFactory.createHLAfloat32BE(window);
+        }
+        attributes.put( freeWindowHandle, freeWindowValue.toByteArray() );
+        rtiamb.updateAttributeValues( objectAirstrip, attributes, generateTag());
+    }
+    private void takeOff(Plane plane) throws Exception
+    {
+        airport.free = false;
+        ParameterHandleValueMap parameterHandleValueMap = rtiamb.getParameterHandleValueMapFactory().create(2);
+        ParameterHandle takeOffIdHandle = rtiamb.getParameterHandle(takeOffHandle, "id");
+        HLAinteger32BE id = encoderFactory.createHLAinteger32BE(plane.getId());
+        parameterHandleValueMap.put(takeOffIdHandle, id.toByteArray());
+        ParameterHandle takeOffDelayHandle = rtiamb.getParameterHandle(takeOffHandle, "delay");
+        HLAfloat32BE delay = encoderFactory.createHLAfloat32BE((float) (fedamb.federateTime - plane.getStartTime()));
+        parameterHandleValueMap.put(takeOffDelayHandle, delay.toByteArray());
+        rtiamb.sendInteraction(takeOffHandle, parameterHandleValueMap, generateTag());
+        log(plane + " take off with deley " + (fedamb.federateTime - plane.getStartTime()));
+    }
+
 
     /**
      * This method will inform the RTI about the types of data that the federate will
@@ -341,18 +380,23 @@ public class AirportFederate
         this.airstripHandle = rtiamb.getObjectClassHandle( "HLAobjectRoot.Airstrip" );
         this.freeHandle = rtiamb.getAttributeHandle( airstripHandle, "free" );
         this.freeWindowHandle = rtiamb.getAttributeHandle( airstripHandle, "freeWindow" );
-        this.avaliablePassengerHandle = rtiamb.getAttributeHandle( airstripHandle, "availablePassenger" );
-        this.avaliableSpecialHandle = rtiamb.getAttributeHandle( airstripHandle, "availableSpecial" );
+        this.availablePassengerHandle = rtiamb.getAttributeHandle( airstripHandle, "availablePassenger" );
+        this.availableSpecialHandle = rtiamb.getAttributeHandle( airstripHandle, "availableSpecial" );
 //		// package the information into a handle set
         AttributeHandleSet attributes = rtiamb.getAttributeHandleSetFactory().create();
         attributes.add(freeHandle);
         attributes.add(freeWindowHandle);
-        attributes.add( avaliablePassengerHandle );
-        attributes.add( avaliableSpecialHandle );
-//
+        attributes.add(availablePassengerHandle);
+        attributes.add(availableSpecialHandle);
         rtiamb.publishObjectClassAttributes( airstripHandle, attributes );
 
+        // publish takeOff Interaction
+        String takeOff = "HLAinteractionRoot.PlanesManagment.TakeOff";
+        takeOffHandle = rtiamb.getInteractionClassHandle( takeOff );
+        rtiamb.publishInteractionClass(takeOffHandle);
 
+
+        //subscribe landing Interaction
         String landingName = "HLAinteractionRoot.PlanesManagment.Landing";
         landingHandle = rtiamb.getInteractionClassHandle( landingName );
         landingIdHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"), "id");

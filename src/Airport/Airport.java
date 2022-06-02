@@ -18,7 +18,7 @@ public class Airport extends JFrame
     private ArrayList<Plane> specialTerminal = new ArrayList<>();
     private Random random = new Random();
     private int planesCount;
-    private int direction;
+    protected int direction;
 
     /*HLA Airstrip*/
     protected boolean free;
@@ -42,7 +42,7 @@ public class Airport extends JFrame
         for (int i = n; i < n + planesInQueue; i++)
         {
             Plane plane = new Plane(i, random.nextInt(2), 50, 0);
-            plane.setStartTime(planesCount * 100);
+            plane.setStartTime(planesCount * 75);
             planesCount++;
             addPlane(plane);
         }
@@ -96,7 +96,6 @@ public class Airport extends JFrame
     public void land(Plane plane, float time, float duration)
     {
         releaseTime = time + duration;
-        direction = 1;
         if (plane.getType() == 0)
         {
             passengerTerminal.add(plane);
@@ -114,7 +113,7 @@ public class Airport extends JFrame
         planesCount++;
         this.repaint();
     }
-    public void relese()
+    public void release()
     {
         free = true;
         direction = 0;
@@ -140,6 +139,8 @@ public class Airport extends JFrame
         this.repaint();
         return plane;
     }
+
+    /*GUI methods*/
     public void init()
     {
         setSize(1080,680);
@@ -161,7 +162,7 @@ public class Airport extends JFrame
         lStartSchedule.setBounds(650,50,250,50);
         add(lStartSchedule);
         Border blackline = BorderFactory.createLineBorder(Color.black);
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 13; i++)
         {
             lStarts.add(new JLabel( i + ": "));
             lStartsTime.add(new JLabel());
@@ -280,6 +281,11 @@ public class Airport extends JFrame
         if (direction == 1)
         {
             g.setColor(Color.GREEN);
+            g.fillPolygon(new int[] {550, 575, 600}, new int[] {400, 450, 400}, 3);
+        }
+        if (direction == 2)
+        {
+            g.setColor(Color.ORANGE);
             g.fillPolygon(new int[] {550, 575, 600}, new int[] {400, 450, 400}, 3);
         }
         if (direction == 0)
