@@ -115,7 +115,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
                                         String objectName )
             throws FederateInternalError
     {
-        log( "Discoverd Object: handle=" + theObject + ", classHandle=" +
+        log( "Discovered Object: handle=" + theObject + ", classHandle=" +
                 theObjectClass + ", name=" + objectName );
     }
 
@@ -169,7 +169,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
         builder.append( "\n" );
         for( AttributeHandle attributeHandle : theAttributes.keySet() )
         {
-            // print the attibute handle
+            // print the attribute handle
             builder.append( "\tattributeHandle=" );
             if( attributeHandle.equals(federate.freeHandle) )
             {
@@ -294,7 +294,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
             builder.append( ", time=" + ((HLAfloat64Time)time).getValue() );
         }
 
-        // print the parameer information
+        // print the parameter information
         builder.append( ", parameterCount=" + theParameters.size() );
         builder.append( "\n" );
         for( ParameterHandle parameter : theParameters.keySet() )

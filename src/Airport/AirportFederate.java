@@ -25,8 +25,6 @@ public class AirportFederate
     //----------------------------------------------------------
     //                    STATIC VARIABLES
     //----------------------------------------------------------
-    /** The number of times we will update our attributes and send an interaction */
-    public static final int ITERATIONS = 20;
 
     /** The sync point all federates will sync up on before starting */
     public static final String READY_TO_RUN = "ReadyToRun";
@@ -47,9 +45,13 @@ public class AirportFederate
     protected AttributeHandle avaliableSpecialHandle;
     protected InteractionClassHandle takeOffHandle;
     protected InteractionClassHandle landingHandle;
-    protected ParameterHandle idHandle;
-    protected ParameterHandle typeHandle;
-    protected ParameterHandle durationHandle;
+    protected InteractionClassHandle emergencyLandingHandle;
+    protected ParameterHandle landingIdHandle;
+    protected ParameterHandle landingTypeHandle;
+    protected ParameterHandle landingDurationHandle;
+    protected ParameterHandle emergencyIdHandle;
+    protected ParameterHandle emergencyTypeHandle;
+    protected ParameterHandle emergencyDurationHandle;
     protected ParameterHandle delayHandle;
 
     protected Airport airport;
@@ -208,16 +210,12 @@ public class AirportFederate
         // here is where we do the meat of our work. in each iteration, we will
         // update the attribute values of the object we registered, and will
         // send an interaction.
-        airport = new Airport(20, 25, 20);
+        airport = new Airport(40, 50, 20);
         while( fedamb.isRunning )
         {
-            if (fedamb.federateTime == airport.getReleseTime())
+            if (airport.free && (fedamb.federateTime >= airport.getTakeOffTime()) && airport.getTakeOffQueueSize() != 0)
             {
-                airport.relese();
-                log("Airstrip is now free.");
-            }
-            if (airport.getFree() && (fedamb.federateTime >= airport.getTakeOffTime()) && airport.getTakeOffQueueSize() != 0)
-            {
+                airport.free = false;
                 Plane plane = airport.takeOff((float) fedamb.federateTime);
                 log(plane + " take off with deley " + (fedamb.federateTime - plane.getStartTime()));
             }
@@ -235,7 +233,12 @@ public class AirportFederate
             }
             else
             {
-                freeWindowValue = encoderFactory.createHLAfloat32BE((float) (airport.getTakeOffTime() - fedamb.federateTime));
+                float window = (float) (airport.getTakeOffTime() - fedamb.federateTime);
+                if (window < 0)
+                {
+                    window = 0;
+                }
+                freeWindowValue = encoderFactory.createHLAfloat32BE(window);
             }
             attributes.put( freeWindowHandle, freeWindowValue.toByteArray() );
 
@@ -246,6 +249,13 @@ public class AirportFederate
             attributes.put( avaliableSpecialHandle, specialValue.toByteArray() );
 
             rtiamb.updateAttributeValues( objectHandle, attributes, generateTag());
+
+            if (fedamb.federateTime == airport.getReleaseTime())
+            {
+                airport.relese();
+                log("Airstrip is now free.");
+            }
+
             advanceTime(1);
             log( "Time Advanced to " + fedamb.federateTime );
         }
@@ -343,12 +353,19 @@ public class AirportFederate
         rtiamb.publishObjectClassAttributes( airstripHandle, attributes );
 
 
-        String iname = "HLAinteractionRoot.PlanesManagment.Landing";
-        landingHandle = rtiamb.getInteractionClassHandle( iname );
-        idHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"), "id");
-        typeHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"), "type");
-        durationHandle  = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"),"duration");
+        String landingName = "HLAinteractionRoot.PlanesManagment.Landing";
+        landingHandle = rtiamb.getInteractionClassHandle( landingName );
+        landingIdHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"), "id");
+        landingTypeHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"), "type");
+        landingDurationHandle  = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.Landing"),"duration");
         rtiamb.subscribeInteractionClass(landingHandle);
+
+        String emergencyLandingName = "HLAinteractionRoot.PlanesManagment.EmergencyLanding";
+        emergencyLandingHandle = rtiamb.getInteractionClassHandle( emergencyLandingName );
+        emergencyIdHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.EmergencyLanding"), "id");
+        emergencyTypeHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.EmergencyLanding"), "type");
+        emergencyDurationHandle  = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.EmergencyLanding"),"duration");
+        rtiamb.subscribeInteractionClass(emergencyLandingHandle);
     }
 
     /**

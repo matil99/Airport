@@ -237,21 +237,22 @@ public class AirspaceFederate
             /*Awaryjne lądowanie*/
             if (airspace.needEmergencyLanding() && airstripFree)
             {
-                /*Plane p = airspace.land();
+                Plane p = airspace.land();
+                airstripFree = false;
                 ParameterHandleValueMap parameterHandleValueMap = rtiamb.getParameterHandleValueMapFactory().create(3);
-                ParameterHandle landingIdHandle = rtiamb.getParameterHandle(landingHandle, "id");
+                ParameterHandle landingIdHandle = rtiamb.getParameterHandle(emergencyLandingHandle, "id");
                 HLAinteger32BE id = encoderFactory.createHLAinteger32BE(p.getId());
                 parameterHandleValueMap.put(landingIdHandle, id.toByteArray());
 
-                ParameterHandle landingTypeHandle = rtiamb.getParameterHandle(landingHandle, "type");
+                ParameterHandle landingTypeHandle = rtiamb.getParameterHandle(emergencyLandingHandle, "type");
                 HLAinteger32BE type = encoderFactory.createHLAinteger32BE(p.getType());
                 parameterHandleValueMap.put(landingTypeHandle, type.toByteArray());
 
-                ParameterHandle landingDurationHandle = rtiamb.getParameterHandle(landingHandle, "duration");
+                ParameterHandle landingDurationHandle = rtiamb.getParameterHandle(emergencyLandingHandle, "duration");
                 HLAfloat32BE duration = encoderFactory.createHLAfloat32BE(p.getDuration());
                 parameterHandleValueMap.put(landingDurationHandle, duration.toByteArray());
 
-                rtiamb.sendInteraction(emergencyLandingHandle, parameterHandleValueMap, generateTag());*/
+                rtiamb.sendInteraction(emergencyLandingHandle, parameterHandleValueMap, generateTag());
                 log("Need emergency landing.");
             }
             if (airspace.landingQueue.size() != 0)

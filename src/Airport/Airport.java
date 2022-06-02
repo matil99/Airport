@@ -21,10 +21,10 @@ public class Airport extends JFrame
     private int direction;
 
     /*HLA Airstrip*/
-    private boolean free;
+    protected boolean free;
     private int maxPassengerPlanes;
     private int maxSpecialPlanes;
-    private float releseTime;
+    private float releaseTime;
 
     /*GUI variables*/
     private JLabel lPassengerTerminal, lSpecialTerminal, lStartSchedule;
@@ -46,16 +46,16 @@ public class Airport extends JFrame
             planesCount++;
             addPlane(plane);
         }
-        this.releseTime = 0;
+        this.releaseTime = 0;
         this.init();
     }
     public boolean getFree()
     {
         return free;
     }
-    public float getReleseTime()
+    public float getReleaseTime()
     {
-        return releseTime;
+        return releaseTime;
     }
     public float getTakeOffTime()
     {
@@ -95,8 +95,7 @@ public class Airport extends JFrame
     }
     public void land(Plane plane, float time, float duration)
     {
-        free = false;
-        releseTime = time + duration;
+        releaseTime = time + duration;
         direction = 1;
         if (plane.getType() == 0)
         {
@@ -112,6 +111,7 @@ public class Airport extends JFrame
         plane.setDuration(takeOffDuration);
         plane.setFuel(0);
         takeOffQueue.add(plane);
+        planesCount++;
         this.repaint();
     }
     public void relese()
@@ -126,10 +126,9 @@ public class Airport extends JFrame
     }
     public Plane takeOff(float time)
     {
-        free = false;
         direction = -1;
         Plane plane = takeOffQueue.poll();
-        releseTime = time + plane.getDuration();
+        releaseTime = time + plane.getDuration();
         if (plane.getType() == 0)
         {
             passengerTerminal.remove(plane);

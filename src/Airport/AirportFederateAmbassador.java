@@ -3,12 +3,10 @@ package Airport;
 import Others.Plane;
 import hla.rti1516e.*;
 import hla.rti1516e.encoding.DecoderException;
-import hla.rti1516e.encoding.HLAboolean;
 import hla.rti1516e.encoding.HLAfloat32BE;
 import hla.rti1516e.encoding.HLAinteger32BE;
 import hla.rti1516e.exceptions.FederateInternalError;
 import hla.rti1516e.time.HLAfloat64Time;
-import org.portico.impl.hla1516e.types.encoding.HLA1516eBoolean;
 import org.portico.impl.hla1516e.types.encoding.HLA1516eFloat32BE;
 import org.portico.impl.hla1516e.types.encoding.HLA1516eInteger32BE;
 
@@ -211,22 +209,22 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
                                     SupplementalReceiveInfo receiveInfo )
             throws FederateInternalError
     {
-        StringBuilder builder = new StringBuilder( "Interaction Received:" );
+        StringBuilder builder = new StringBuilder( "Interaction Received: " );
 
         // print the handle
-        builder.append( " handle=" + interactionClass );
+        builder.append(interactionClass );
         if( interactionClass.equals(federate.landingHandle) )
         {
             int idValue = 0;
             int typeValue = 0;
             float durationValue = 0;
-            boolean emergencyValue = false;
+            federate.airport.free = false;
             builder.append( " (Landing)" );
             for( ParameterHandle parameter : theParameters.keySet() )
             {
-                if (parameter.equals(federate.idHandle))
+                if (parameter.equals(federate.landingIdHandle))
                 {
-                    byte[] bytes = theParameters.get(federate.idHandle);
+                    byte[] bytes = theParameters.get(federate.landingIdHandle);
                     HLAinteger32BE id = new HLA1516eInteger32BE();
                     try
                     {
@@ -236,11 +234,11 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
                         e.printStackTrace();
                     }
                     idValue = id.getValue();
-                    builder.append( "\tID: " + idValue );
+                    builder.append( ",\tID: " + idValue );
                 }
-                if (parameter.equals(federate.typeHandle))
+                if (parameter.equals(federate.landingTypeHandle))
                 {
-                    byte[] bytes = theParameters.get(federate.typeHandle);
+                    byte[] bytes = theParameters.get(federate.landingTypeHandle);
                     HLAinteger32BE type = new HLA1516eInteger32BE();
                     try
                     {
@@ -250,11 +248,11 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
                         e.printStackTrace();
                     }
                     typeValue = type.getValue();
-                    builder.append( "\tType:" + typeValue );
+                    builder.append( ",\tType:" + typeValue );
                 }
-                if (parameter.equals(federate.durationHandle))
+                if (parameter.equals(federate.landingDurationHandle))
                 {
-                    byte[] bytes = theParameters.get(federate.durationHandle);
+                    byte[] bytes = theParameters.get(federate.landingDurationHandle);
                     HLAfloat32BE duration = new HLA1516eFloat32BE();
                     try
                     {
@@ -264,12 +262,68 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
                         e.printStackTrace();
                     }
                     durationValue = duration.getValue();
-                    builder.append( "\tDuration: " + durationValue );
+                    builder.append( ",\tDuration: " + durationValue );
                 }
             }
             Plane plane = new Plane(idValue, typeValue,0, 0);
             federate.airport.land(plane, (float) federateTime, durationValue);
         }
+        if( interactionClass.equals(federate.emergencyLandingHandle) )
+        {
+            int idValue = 0;
+            int typeValue = 0;
+            float durationValue = 0;
+            federate.airport.free = false;
+            builder.append( " (EmergencyLanding)" );
+            for( ParameterHandle parameter : theParameters.keySet() )
+            {
+                if (parameter.equals(federate.emergencyIdHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.emergencyIdHandle);
+                    HLAinteger32BE id = new HLA1516eInteger32BE();
+                    try
+                    {
+                        id.decode(bytes);
+                    } catch (DecoderException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    idValue = id.getValue();
+                    builder.append( ",\tID: " + idValue );
+                }
+                if (parameter.equals(federate.emergencyTypeHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.emergencyTypeHandle);
+                    HLAinteger32BE type = new HLA1516eInteger32BE();
+                    try
+                    {
+                        type.decode(bytes);
+                    } catch (DecoderException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    typeValue = type.getValue();
+                    builder.append( ",\tType:" + typeValue );
+                }
+                if (parameter.equals(federate.emergencyDurationHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.emergencyDurationHandle);
+                    HLAfloat32BE duration = new HLA1516eFloat32BE();
+                    try
+                    {
+                        duration.decode(bytes);
+                    } catch (DecoderException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    durationValue = duration.getValue();
+                    builder.append( ",\tDuration: " + durationValue );
+                }
+            }
+            Plane plane = new Plane(idValue, typeValue,0, 0);
+            federate.airport.land(plane, (float) federateTime, durationValue);
+        }
+
 
         // print the tag
         builder.append( ", tag=" + new String(tag) );
