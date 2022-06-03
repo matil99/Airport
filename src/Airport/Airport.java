@@ -20,6 +20,11 @@ public class Airport extends JFrame
     private int planesCount;
     protected int direction;
 
+    protected float maxDelay;
+    protected int forwardedPlanes;
+    protected int landingCount;
+    protected int emergencyCount;
+
     /*HLA Airstrip*/
     protected boolean free;
     private int maxPassengerPlanes;
@@ -30,6 +35,8 @@ public class Airport extends JFrame
     private JLabel lPassengerTerminal, lSpecialTerminal, lStartSchedule;
     private ArrayList<JLabel> lStarts= new ArrayList<>();
     private ArrayList<JLabel> lStartsTime= new ArrayList<>();
+    private ArrayList<JLabel> lStatsTitle = new ArrayList<>();
+    private ArrayList<JLabel> lStatsValue = new ArrayList<>();
 
     public Airport(int maxPassengerPlanes, int maxSpecialPlanes, int planesInQueue)
     {
@@ -38,6 +45,10 @@ public class Airport extends JFrame
         this.planesCount = 1;
         this.free = false;
         this.direction = 0;
+        this.maxDelay = 0;
+        this.forwardedPlanes = 0;
+        this.landingCount = 0;
+        this.emergencyCount = 0;
         int  n = random.nextInt(1000) + 500;
         for (int i = n; i < n + planesInQueue; i++)
         {
@@ -173,6 +184,21 @@ public class Airport extends JFrame
             add(lStarts.get(i));
             add(lStartsTime.get(i));
         }
+        for (int i = 0; i < 4; i++) /*Budowa tabelki na statystyki*/
+        {
+            lStatsTitle.add(new JLabel());
+            lStatsValue.add(new JLabel());
+            lStatsTitle.get(i).setBounds(50 + i*250, 450, 250, 25);
+            lStatsValue.get(i).setBounds(50 + i*250, 475, 250, 25);
+            lStatsTitle.get(i).setBorder(blackline);
+            lStatsValue.get(i).setBorder(blackline);
+            add(lStatsTitle.get(i));
+            add(lStatsValue.get(i));
+        }
+        lStatsTitle.get(0).setText("Maksymalne opóżnienie");
+        lStatsTitle.get(1).setText("Samoloty przekierowane na inne lotnisko");
+        lStatsTitle.get(2).setText("Udane lądowania");
+        lStatsTitle.get(3).setText("Lądowania awaryjne");
     }
     public void paint(Graphics g)
     {
@@ -183,6 +209,7 @@ public class Airport extends JFrame
         drawAirStrip(g);
         updateLights(g);
         updateDirection(g);
+        updateStats(g);
     }
     public void drawTerminal(Graphics g)
     {
@@ -294,5 +321,11 @@ public class Airport extends JFrame
             g.fillRect(550,400,50,50);
         }
     }
-
+    public void updateStats(Graphics g)
+    {
+        lStatsValue.get(0).setText(String.valueOf(maxDelay));
+        lStatsValue.get(1).setText(String.valueOf(forwardedPlanes));
+        lStatsValue.get(2).setText(String.valueOf(landingCount));
+        lStatsValue.get(3).setText(String.valueOf(emergencyCount));
+    }
 }

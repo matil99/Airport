@@ -53,6 +53,8 @@ public class AirportFederate
     protected ParameterHandle emergencyIdHandle;
     protected ParameterHandle emergencyTypeHandle;
     protected ParameterHandle emergencyDurationHandle;
+    protected ParameterHandle takeOffIdHandle;
+    protected ParameterHandle takeOffDelayHandle;
 
     protected Airport airport;
 
@@ -393,6 +395,8 @@ public class AirportFederate
         // publish takeOff Interaction
         String takeOff = "HLAinteractionRoot.PlanesManagment.TakeOff";
         takeOffHandle = rtiamb.getInteractionClassHandle( takeOff );
+        takeOffIdHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.TakeOff"), "id");
+        takeOffDelayHandle = rtiamb.getParameterHandle(rtiamb.getInteractionClassHandle( "HLAinteractionRoot.PlanesManagment.TakeOff"), "delay");
         rtiamb.publishInteractionClass(takeOffHandle);
 
 
