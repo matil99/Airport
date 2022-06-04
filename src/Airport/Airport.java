@@ -154,25 +154,35 @@ public class Airport extends JFrame
     /*GUI methods*/
     public void init()
     {
+        Color color1=new Color(255,217,230);
         setSize(1080,680);
         setTitle("Airport");
+        getContentPane().setBackground(color1);
         setLayout(null);
+        setBackground(color1);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         setResizable(false);
 
-        lPassengerTerminal = new JLabel("Terminal pasażerski [" + passengerTerminal.size() + "/" + maxPassengerPlanes + "]");
+        Font font1 = new Font("SansSerif", Font.BOLD, 18);
+        lPassengerTerminal = new JLabel("Terminal pasażerski [" + passengerTerminal.size() + "/" + maxPassengerPlanes + "]", JLabel.CENTER);
         lPassengerTerminal.setBounds(50,50,250,50);
+        lPassengerTerminal.setFont(font1);
         add(lPassengerTerminal);
 
-        lSpecialTerminal = new JLabel("Terminal specjalny [" + specialTerminal.size() + "/" + maxPassengerPlanes + "]");
+        lSpecialTerminal = new JLabel("Terminal specjalny [" + specialTerminal.size() + "/" + maxPassengerPlanes + "]", JLabel.CENTER);
         lSpecialTerminal.setBounds(350,50,250,50);
+        lSpecialTerminal.setFont(font1);
         add(lSpecialTerminal);
 
-        lStartSchedule = new JLabel("Najbliższe starty");
+
+        lStartSchedule = new JLabel("Najbliższe starty", JLabel.CENTER);
+        lStartSchedule.setForeground(Color.red);
+        lStartSchedule.setFont(font1);
         lStartSchedule.setBounds(650,50,250,50);
         add(lStartSchedule);
         Border blackline = BorderFactory.createLineBorder(Color.black);
+        Border redline = BorderFactory.createLineBorder(Color.red);
         for (int i = 0; i < 13; i++)
         {
             lStarts.add(new JLabel( i + ": "));
@@ -188,17 +198,38 @@ public class Airport extends JFrame
         {
             lStatsTitle.add(new JLabel());
             lStatsValue.add(new JLabel());
-            lStatsTitle.get(i).setBounds(50 + i*250, 450, 250, 25);
-            lStatsValue.get(i).setBounds(50 + i*250, 475, 250, 25);
+            lStatsTitle.get(i).setBounds(49 + i*238, 460, 238, 40);
+            lStatsValue.get(i).setBounds(49 + i*238, 500, 238, 40);
             lStatsTitle.get(i).setBorder(blackline);
             lStatsValue.get(i).setBorder(blackline);
             add(lStatsTitle.get(i));
             add(lStatsValue.get(i));
         }
-        lStatsTitle.get(0).setText("Maksymalne opóżnienie");
-        lStatsTitle.get(1).setText("Samoloty przekierowane na inne lotnisko");
+        lStatsTitle.get(0).setText("Maksymalne opóźnienie");
+        lStatsTitle.get(1).setText("Przekierowane samoloty");
         lStatsTitle.get(2).setText("Udane lądowania");
-        lStatsTitle.get(3).setText("Lądowania awaryjne");
+        lStatsTitle.get(3).setText("Awaryjne lądowania");
+
+
+        lStatsTitle.get(0).setFont(font1);
+        lStatsTitle.get(1).setFont(font1);
+        lStatsTitle.get(2).setFont(font1);
+        lStatsTitle.get(3).setFont(font1);
+        lStatsValue.get(0).setFont(font1);
+        lStatsValue.get(1).setFont(font1);
+        lStatsValue.get(2).setFont(font1);
+        lStatsValue.get(3).setFont(font1);
+        lStatsTitle.get(0).setHorizontalAlignment(JTextField.CENTER);
+        lStatsTitle.get(1).setHorizontalAlignment(JTextField.CENTER);
+        lStatsTitle.get(2).setHorizontalAlignment(JTextField.CENTER);
+        lStatsTitle.get(3).setHorizontalAlignment(JTextField.CENTER);
+        lStatsValue.get(0).setHorizontalAlignment(JTextField.CENTER);
+        lStatsValue.get(1).setHorizontalAlignment(JTextField.CENTER);
+        lStatsValue.get(2).setHorizontalAlignment(JTextField.CENTER);
+        lStatsValue.get(3).setHorizontalAlignment(JTextField.CENTER);
+        //lStatsTitle.get(0).setBackground(Color.red);
+        //lStatsTitle.get(0).setVisible(true);
+        //lStatsTitle.get(0).setSize(150,20);
     }
     public void paint(Graphics g)
     {
@@ -222,11 +253,12 @@ public class Airport extends JFrame
     }
     public void updateTerminal(Graphics g)
     {
+        Color color2 = new Color(128, 0, 128);
         int heightPassenger, heightSpecial;
-        g.setColor(Color.WHITE);
+        g.setColor(color2);
         g.fillRect(50,150,250,100); /*Terminal pasażerski - pusty*/
         g.fillRect(350,150,250,100); /*Terminal specjalny - pusty*/
-        g.setColor(Color.GREEN);
+        g.setColor(Color.red);
         heightPassenger  = (int)(((float)passengerTerminal.size()/(float)maxPassengerPlanes)*100); /*Wysokość według zajętości terminala*/
         heightSpecial = (int)(((float)specialTerminal.size()/(float)maxSpecialPlanes)*100);
         lPassengerTerminal.setText("Terminal pasażerski [" + passengerTerminal.size() + "/" + maxPassengerPlanes + "]");
@@ -278,16 +310,22 @@ public class Airport extends JFrame
     }
     public void updateLights(Graphics g)
     {
+        Color color1=new Color(255,217,230);
+        g.setColor(Color.BLACK);
+        g.drawRect(50,400,100,50);
+        g.setColor(color1);
+        g.fillRect(50,400,100,50);
         if (free)
         {
             g.setColor(Color.GREEN);
             g.fillOval(50,400,50,50);
-            g.setColor(Color.WHITE);
+
+            g.setColor(color1);
             g.fillOval(100,400,50,50);
         }
         else
         {
-            g.setColor(Color.WHITE);
+            g.setColor(color1);
             g.fillOval(50,400,50,50);
             g.setColor(Color.RED);
             g.fillOval(100,400,50,50);
@@ -296,9 +334,10 @@ public class Airport extends JFrame
     public void updateDirection(Graphics g)
     {
 
-        g.setColor(Color.BLACK);
+        Color color1=new Color(255,217,230);
+        g.setColor(color1);
         g.drawRect(550,400,50,50);
-        g.setColor(Color.WHITE);
+        g.setColor(color1);
         g.fillRect(550,400,50,50);
         if (direction == -1)
         {
@@ -317,7 +356,7 @@ public class Airport extends JFrame
         }
         if (direction == 0)
         {
-            g.setColor(Color.WHITE);
+            g.setColor(color1);
             g.fillRect(550,400,50,50);
         }
     }
