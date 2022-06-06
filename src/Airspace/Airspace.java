@@ -3,7 +3,6 @@ package Airspace;
 import Others.Plane;
 import Others.PlaneFuelComparator;
 
-import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Random;
 
@@ -22,11 +21,11 @@ public class Airspace
     }
     public Plane appear(float currentTime)
     {
-        timeToNext = random.nextInt(29)+1 + currentTime;
+        timeToNext = random.nextInt(49)+1 + currentTime;
         currentId = currentId + 1;
         int type = random.nextInt(2);
-        float fuel = random.nextInt(199)+1;
-        float duration = random.nextInt(49)+1;
+        float fuel = random.nextInt(599)+101;
+        float duration = random.nextInt(49)+25;
         Plane plane = new Plane(currentId, type, duration, fuel);
         landingQueue.add(plane);
         return plane;
@@ -60,11 +59,8 @@ public class Airspace
     public int getSpecialCount()
     {
         int specialCounter = 0;
-        for (Iterator<Plane> it = landingQueue.iterator(); it.hasNext(); )
-        {
-            Plane plane = it.next();
-            if (plane.getType() == 1)
-            {
+        for (Plane plane : landingQueue) {
+            if (plane.getType() == 1) {
                 specialCounter++;
             }
         }
@@ -72,16 +68,13 @@ public class Airspace
     }
     public int getPassengerCount()
     {
-        int paseengerCounter = 0;
-        for (Iterator<Plane> it = landingQueue.iterator(); it.hasNext(); )
-        {
-            Plane plane = it.next();
-            if (plane.getType() == 0)
-            {
-                paseengerCounter++;
+        int passengerCounter = 0;
+        for (Plane plane : landingQueue) {
+            if (plane.getType() == 0) {
+                passengerCounter++;
             }
         }
-        return paseengerCounter;
+        return passengerCounter;
     }
     public float getTimeToNext()
     {

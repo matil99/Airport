@@ -131,11 +131,7 @@ public class AirspaceFederate
         // 4. join the federation //
         ////////////////////////////
 
-        rtiamb.joinFederationExecution( federateName,            // name for the federate
-                "airspace",   // federate type
-                "AirportFederation"     // name of federation
-        );           // modules we want to add
-
+        rtiamb.joinFederationExecution( federateName,"airspace","AirportFederation");           // modules we want to add
         log( "Joined Federation as " + federateName );
 
         // cache the time factory for easy access
@@ -149,7 +145,7 @@ public class AirspaceFederate
         // but we don't care about that, as long as someone registered it
         rtiamb.registerFederationSynchronizationPoint( READY_TO_RUN, null );
         // wait until the point is announced
-        while( fedamb.isAnnounced == false )
+        while(!fedamb.isAnnounced)
         {
             rtiamb.evokeMultipleCallbacks( 0.1, 0.2 );
         }
@@ -167,7 +163,7 @@ public class AirspaceFederate
         // until the federation has synchronized on
         rtiamb.synchronizationPointAchieved( READY_TO_RUN );
         log( "Achieved sync point: " +READY_TO_RUN+ ", waiting for federation..." );
-        while( fedamb.isReadyToRun == false )
+        while(!fedamb.isReadyToRun)
         {
             rtiamb.evokeMultipleCallbacks( 0.1, 0.2 );
         }
@@ -221,8 +217,8 @@ public class AirspaceFederate
                     landing(plane);
                 }
             }
-            // 9.3 request a time advance and wait until we get it
             airspace.updateFuel(1);
+            // 9.3 request a time advance and wait until we get it
             advanceTime(1);
             log( "Time Advanced to " + fedamb.federateTime );
         }
@@ -335,7 +331,7 @@ public class AirspaceFederate
         this.rtiamb.enableTimeRegulation( lookahead );
 
         // tick until we get the callback
-        while( fedamb.isRegulating == false )
+        while(!fedamb.isRegulating)
         {
             rtiamb.evokeMultipleCallbacks( 0.1, 0.2 );
         }
@@ -346,7 +342,7 @@ public class AirspaceFederate
         this.rtiamb.enableTimeConstrained();
 
         // tick until we get the callback
-        while( fedamb.isConstrained == false )
+        while(!fedamb.isConstrained)
         {
             rtiamb.evokeMultipleCallbacks( 0.1, 0.2 );
         }
@@ -361,14 +357,14 @@ public class AirspaceFederate
      */
     private void publishAndSubscribe() throws RTIexception
     {
-        // subscribe for airstrip
+        /*Subscribe for Airstrip*/
         this.airstripHandle = rtiamb.getObjectClassHandle( "HLAobjectRoot.Airstrip" );
         this.freeHandle = rtiamb.getAttributeHandle( airstripHandle, "free" );
         this.freeWindowHandle = rtiamb.getAttributeHandle( airstripHandle, "freeWindow" );
         this.availablePassengerHandle = rtiamb.getAttributeHandle( airstripHandle, "availablePassenger" );
         this.availableSpecialHandle = rtiamb.getAttributeHandle( airstripHandle, "availableSpecial" );
 
-		// package the information into a handle set
+		/*Package the information into a handle set*/
         AttributeHandleSet attributes = rtiamb.getAttributeHandleSetFactory().create();
         attributes.add( freeHandle );
         attributes.add( freeWindowHandle );
@@ -376,26 +372,27 @@ public class AirspaceFederate
         attributes.add( availableSpecialHandle );
         rtiamb.subscribeObjectClassAttributes( airstripHandle, attributes );
 
+        /*Subscribe TakeOff Interaction*/
         String takeOffName = "HLAinteractionRoot.PlanesManagment.TakeOff";
         takeOffHandle = rtiamb.getInteractionClassHandle( takeOffName );
         rtiamb.subscribeInteractionClass(takeOffHandle);
 
-		// publish appear Interaction
+		/*Publish Appear Interaction*/
         String appear = "HLAinteractionRoot.PlanesManagment.Appear";
         appearHandle = rtiamb.getInteractionClassHandle( appear );
         rtiamb.publishInteractionClass(appearHandle);
 
-        // publish forward Interaction
+        /*Publish Forward Interaction*/
         String forward = "HLAinteractionRoot.PlanesManagment.Forward";
         forwardHandle = rtiamb.getInteractionClassHandle( forward );
         rtiamb.publishInteractionClass(forwardHandle);
 
-        // publish landing Interaction
+        /*Publish Landing Interaction*/
         String landing = "HLAinteractionRoot.PlanesManagment.Landing";
         landingHandle = rtiamb.getInteractionClassHandle( landing );
         rtiamb.publishInteractionClass(landingHandle);
 
-        // publish emergency landing Interaction
+        /*Publish EmergencyLanding Interaction*/
         String emergencyLanding = "HLAinteractionRoot.PlanesManagment.EmergencyLanding";
         emergencyLandingHandle = rtiamb.getInteractionClassHandle( emergencyLanding );
         rtiamb.publishInteractionClass(emergencyLandingHandle);

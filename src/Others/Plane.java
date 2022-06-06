@@ -2,8 +2,8 @@ package Others;
 
 public class Plane
 {
-    private int id;
-    private int type;
+    private final int id;
+    private final int type;
     private float duration;
     private float fuel;
     private float startTime;

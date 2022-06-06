@@ -19,7 +19,7 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
     //----------------------------------------------------------
     //                   INSTANCE VARIABLES
     //----------------------------------------------------------
-    private AirportFederate federate;
+    private final AirportFederate federate;
 
     // these variables are accessible in the package
     protected double federateTime        = 0.0;
@@ -55,10 +55,9 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
     ////////////////////////// RTI Callback Methods //////////////////////////
     //////////////////////////////////////////////////////////////////////////
     @Override
-    public void synchronizationPointRegistrationFailed( String label,
-                                                        SynchronizationPointFailureReason reason )
+    public void synchronizationPointRegistrationFailed( String label, SynchronizationPointFailureReason reason )
     {
-        log( "Failed to register sync point: " + label + ", reason="+reason );
+        log( "Failed to register sync point: " + label + ", reason: "+reason );
     }
 
     @Override
@@ -113,8 +112,8 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
                                         String objectName )
             throws FederateInternalError
     {
-        log( "Discovered Object: handle=" + theObject + ", classHandle=" +
-                theObjectClass + ", name=" + objectName );
+        log( "Discovered Object: handle; " + theObject + ", classHandle: " +
+                theObjectClass + ", name: " + objectName );
     }
 
     @Override
@@ -153,26 +152,86 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
         StringBuilder builder = new StringBuilder( "Reflection for object:" );
 
         // print the handle
-        builder.append( " handle=" + theObject );
+        builder.append( " handle: " + theObject );
         // print the tag
-        builder.append( ", tag=" + new String(tag) );
+        builder.append( ", tag: " + new String(tag) );
         // print the time (if we have it) we'll get null if we are just receiving
         // a forwarded call from the other reflect callback above
-
+        if( time != null )
+        {
+            builder.append( ", time: " + ((HLAfloat64Time)time).getValue() );
+        }
 
         // print the attribute information
-        builder.append( ", attributeCount=" + theAttributes.size() );
+        builder.append( ", attributeCount: " + theAttributes.size() );
         builder.append( "\n" );
         for( AttributeHandle attributeHandle : theAttributes.keySet() )
         {
             // print the attribute handle
-            builder.append( "\tattributeHandle=" );
-
-            // if we're dealing with Flavor, decode into the appropriate enum value
-
+            builder.append( "\tattributeHandle: " );
+            if( attributeHandle.equals(federate.maxDelayHandle) )
+            {
+                builder.append( attributeHandle );
+                builder.append( " MaxDelay: " );
+                HLAfloat32BE maxDelay = new HLA1516eFloat32BE();
+                try
+                {
+                    maxDelay.decode(theAttributes.get(attributeHandle));
+                } catch (DecoderException e)
+                {
+                    e.printStackTrace();
+                }
+                builder.append( maxDelay.getValue() );
+                federate.airport.maxDelay = maxDelay.getValue();
+            }
+            if( attributeHandle.equals(federate.forwardedPlanesHandle) )
+            {
+                builder.append( attributeHandle );
+                builder.append( " ForwardedPLanes: " );
+                HLAinteger32BE forwardedPLanes = new HLA1516eInteger32BE();
+                try
+                {
+                    forwardedPLanes.decode(theAttributes.get(attributeHandle));
+                } catch (DecoderException e)
+                {
+                    e.printStackTrace();
+                }
+                builder.append( forwardedPLanes.getValue() );
+                federate.airport.forwardedPlanes = forwardedPLanes.getValue();
+            }
+            if( attributeHandle.equals(federate.landingCountHandle) )
+            {
+                builder.append( attributeHandle );
+                builder.append( " LandingCount: " );
+                HLAinteger32BE landingCount = new HLA1516eInteger32BE();
+                try
+                {
+                    landingCount.decode(theAttributes.get(attributeHandle));
+                } catch (DecoderException e)
+                {
+                    e.printStackTrace();
+                }
+                builder.append( landingCount.getValue() );
+                federate.airport.landingCount = landingCount.getValue();
+            }
+            if( attributeHandle.equals(federate.emergencyCountHandle) )
+            {
+                builder.append( attributeHandle );
+                builder.append( " EmergencyCount: " );
+                HLAinteger32BE emergencyCount = new HLA1516eInteger32BE();
+                try
+                {
+                    emergencyCount.decode(theAttributes.get(attributeHandle));
+                } catch (DecoderException e)
+                {
+                    e.printStackTrace();
+                }
+                builder.append( emergencyCount.getValue() );
+                federate.airport.emergencyCount = emergencyCount.getValue();
+            }
             builder.append( "\n" );
         }
-
+        federate.airport.repaint();
         log( builder.toString() );
     }
 
@@ -223,16 +282,16 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
         }
 
         // print the tag
-        builder.append( ", tag=" + new String(tag) );
+        builder.append( ", tag: " + new String(tag) );
         // print the time (if we have it) we'll get null if we are just receiving
         // a forwarded call from the other reflect callback above
         if( time != null )
         {
-            builder.append( ", time=" + ((HLAfloat64Time)time).getValue() );
+            builder.append( ", time: " + ((HLAfloat64Time)time).getValue() );
         }
 
         // print the parameer information
-        builder.append( ", parameterCount=" + theParameters.size() );
+        builder.append( ", parameterCount: " + theParameters.size() );
         builder.append( "\n" );
 
         log( builder.toString() );

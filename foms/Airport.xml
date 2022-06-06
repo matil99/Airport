@@ -60,6 +60,55 @@
 					<semantics>Liczba wolnych miejsc w terminalu specjalnym</semantics>
 				</attribute>
 			</objectClass>
+			<objectClass>
+				<name>StatsPackage</name>
+				<sharing>PublishSubscribe</sharing>
+				<semantics>Pakiet statystyk</semantics>
+				<attribute>
+					<name>maxDelay</name>
+					<dataType> HLAlfloat32BE</dataType>
+					<updateType>Conditional</updateType>
+					<updateCondition>On Change</updateCondition>
+					<ownership>Divest</ownership>
+					<sharing>PublishSubscribe</sharing>
+					<transportation>HLAreliable</transportation>
+					<order>Receive</order>
+					<semantics>Maksymalne opóźnienie</semantics>
+				</attribute>
+				<attribute>
+					<name>forwardedPlanes</name>
+					<dataType> HLAinteger32BE</dataType>
+					<updateType>Conditional</updateType>
+					<updateCondition>On Change</updateCondition>
+					<ownership>Divest</ownership>
+					<sharing>PublishSubscribe</sharing>
+					<transportation>HLAreliable</transportation>
+					<order>Receive</order>
+					<semantics>Liczba samolotów przekierowanych na inne lotnisko</semantics>
+				</attribute>
+				<attribute>
+					<name>landingCount</name>
+					<dataType>HLAinteger32BE</dataType>
+					<updateType>Conditional</updateType>
+					<updateCondition>On Change</updateCondition>
+					<ownership>Divest</ownership>
+					<sharing>PublishSubscribe</sharing>
+					<transportation>HLAreliable</transportation>
+					<order>Receive</order>
+					<semantics>Liczba udanych lądowań</semantics>
+				</attribute>
+				<attribute>
+					<name>emergencyCount</name>
+					<dataType>HLAinteger32BE</dataType>
+					<updateType>Conditional</updateType>
+					<updateCondition>On Change</updateCondition>
+					<ownership>Divest</ownership>
+					<sharing>PublishSubscribe</sharing>
+					<transportation>HLAreliable</transportation>
+					<order>Receive</order>
+					<semantics>Liczba udanych lądowań awaryjnych</semantics>
+				</attribute>
+			</objectClass>
 		</objectClass>
 	</objects>
 	<interactions>

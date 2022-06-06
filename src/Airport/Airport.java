@@ -7,7 +7,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Random;
 
@@ -17,7 +16,7 @@ public class Airport extends JFrame
     private ArrayList<Plane> passengerTerminal = new ArrayList<>();
     private ArrayList<Plane> specialTerminal = new ArrayList<>();
     private Random random = new Random();
-    private int planesCount;
+    protected int planesCount;
     protected int direction;
 
     protected float maxDelay;
@@ -27,9 +26,9 @@ public class Airport extends JFrame
 
     /*HLA Airstrip*/
     protected boolean free;
-    private int maxPassengerPlanes;
-    private int maxSpecialPlanes;
-    private float releaseTime;
+    protected int maxPassengerPlanes;
+    protected int maxSpecialPlanes;
+    protected float releaseTime;
 
     /*GUI variables*/
     private JLabel lPassengerTerminal, lSpecialTerminal, lStartSchedule;
@@ -53,7 +52,7 @@ public class Airport extends JFrame
         for (int i = n; i < n + planesInQueue; i++)
         {
             Plane plane = new Plane(i, random.nextInt(2), 50, 0);
-            plane.setStartTime(planesCount * 75);
+            plane.setStartTime(planesCount * 100);
             planesCount++;
             addPlane(plane);
         }
@@ -82,15 +81,13 @@ public class Airport extends JFrame
     public int getAvailablePassenger()
     {
         int available = maxPassengerPlanes - passengerTerminal.size();
-        if (available > 0) return available;
-        else return 0;
+        return Math.max(available, 0);
 
     }
     public int getAvailableSpecial()
     {
         int available = maxSpecialPlanes - specialTerminal.size();
-        if (available > 0) return available;
-        else return 0;
+        return Math.max(available, 0);
     }
     private void addPlane(Plane plane)
     {
@@ -152,7 +149,7 @@ public class Airport extends JFrame
     }
 
     /*GUI methods*/
-    public void init()
+    private void init()
     {
         Color color1=new Color(255,217,230);
         setSize(1080,680);
@@ -164,26 +161,25 @@ public class Airport extends JFrame
         setVisible(true);
         setResizable(false);
 
-        Font font1 = new Font("SansSerif", Font.BOLD, 18);
+        Font sansSerif = new Font("SansSerif", Font.BOLD, 18);
         lPassengerTerminal = new JLabel("Terminal pasażerski [" + passengerTerminal.size() + "/" + maxPassengerPlanes + "]", JLabel.CENTER);
         lPassengerTerminal.setBounds(50,50,250,50);
-        lPassengerTerminal.setFont(font1);
+        lPassengerTerminal.setFont(sansSerif);
         add(lPassengerTerminal);
 
         lSpecialTerminal = new JLabel("Terminal specjalny [" + specialTerminal.size() + "/" + maxPassengerPlanes + "]", JLabel.CENTER);
         lSpecialTerminal.setBounds(350,50,250,50);
-        lSpecialTerminal.setFont(font1);
+        lSpecialTerminal.setFont(sansSerif);
         add(lSpecialTerminal);
 
 
         lStartSchedule = new JLabel("Najbliższe starty", JLabel.CENTER);
         lStartSchedule.setForeground(Color.red);
-        lStartSchedule.setFont(font1);
+        lStartSchedule.setFont(sansSerif);
         lStartSchedule.setBounds(650,50,250,50);
         add(lStartSchedule);
         Border blackline = BorderFactory.createLineBorder(Color.black);
-        Border redline = BorderFactory.createLineBorder(Color.red);
-        for (int i = 0; i < 13; i++)
+        for (int i = 0; i < 13; i++) /*Budowa tabelki odlotów*/
         {
             lStarts.add(new JLabel( i + ": "));
             lStartsTime.add(new JLabel());
@@ -202,6 +198,10 @@ public class Airport extends JFrame
             lStatsValue.get(i).setBounds(49 + i*238, 500, 238, 40);
             lStatsTitle.get(i).setBorder(blackline);
             lStatsValue.get(i).setBorder(blackline);
+            lStatsTitle.get(i).setFont(sansSerif);
+            lStatsValue.get(i).setFont(sansSerif);
+            lStatsTitle.get(i).setHorizontalAlignment(JTextField.CENTER);
+            lStatsValue.get(i).setHorizontalAlignment(JTextField.CENTER);
             add(lStatsTitle.get(i));
             add(lStatsValue.get(i));
         }
@@ -209,40 +209,19 @@ public class Airport extends JFrame
         lStatsTitle.get(1).setText("Przekierowane samoloty");
         lStatsTitle.get(2).setText("Udane lądowania");
         lStatsTitle.get(3).setText("Awaryjne lądowania");
-
-
-        lStatsTitle.get(0).setFont(font1);
-        lStatsTitle.get(1).setFont(font1);
-        lStatsTitle.get(2).setFont(font1);
-        lStatsTitle.get(3).setFont(font1);
-        lStatsValue.get(0).setFont(font1);
-        lStatsValue.get(1).setFont(font1);
-        lStatsValue.get(2).setFont(font1);
-        lStatsValue.get(3).setFont(font1);
-        lStatsTitle.get(0).setHorizontalAlignment(JTextField.CENTER);
-        lStatsTitle.get(1).setHorizontalAlignment(JTextField.CENTER);
-        lStatsTitle.get(2).setHorizontalAlignment(JTextField.CENTER);
-        lStatsTitle.get(3).setHorizontalAlignment(JTextField.CENTER);
-        lStatsValue.get(0).setHorizontalAlignment(JTextField.CENTER);
-        lStatsValue.get(1).setHorizontalAlignment(JTextField.CENTER);
-        lStatsValue.get(2).setHorizontalAlignment(JTextField.CENTER);
-        lStatsValue.get(3).setHorizontalAlignment(JTextField.CENTER);
-        //lStatsTitle.get(0).setBackground(Color.red);
-        //lStatsTitle.get(0).setVisible(true);
-        //lStatsTitle.get(0).setSize(150,20);
     }
     public void paint(Graphics g)
     {
         super.paint(g);
         drawTerminal(g);
         updateTerminal(g);
-        updateStartSchedule(g);
+        updateStartSchedule();
         drawAirStrip(g);
         updateLights(g);
         updateDirection(g);
-        updateStats(g);
+        updateStats();
     }
-    public void drawTerminal(Graphics g)
+    private void drawTerminal(Graphics g)
     {
         g.setColor(Color.BLACK);
         g.drawRect(50,150,250,100); /*Terminal pasażerski - pusty*/
@@ -251,11 +230,11 @@ public class Airport extends JFrame
         g.fillRect(50,150,250,100); /*Terminal pasażerski - pusty*/
         g.fillRect(350,150,250,100); /*Terminal specjalny - pusty*/
     }
-    public void updateTerminal(Graphics g)
+    private void updateTerminal(Graphics g)
     {
-        Color color2 = new Color(128, 0, 128);
+        Color pink = new Color(128, 0, 128);
         int heightPassenger, heightSpecial;
-        g.setColor(color2);
+        g.setColor(pink);
         g.fillRect(50,150,250,100); /*Terminal pasażerski - pusty*/
         g.fillRect(350,150,250,100); /*Terminal specjalny - pusty*/
         g.setColor(Color.red);
@@ -266,14 +245,10 @@ public class Airport extends JFrame
         g.fillRect(50,150,250, heightPassenger);
         g.fillRect(350,150,250, heightSpecial);
     }
-    public void updateStartSchedule(Graphics g)
+    private void updateStartSchedule()
     {
         PriorityQueue<Plane> tmp = new PriorityQueue<>(new PlaneStartTimeComparator());
-        for (Iterator<Plane> it = takeOffQueue.iterator(); it.hasNext(); )
-        {
-            Plane p = it.next();
-            tmp.add(p);
-        }
+        tmp.addAll(takeOffQueue);
         for (int i = 0; i < lStarts.size(); i++)
         {
             Plane plane = tmp.poll();
@@ -289,7 +264,7 @@ public class Airport extends JFrame
             }
         }
     }
-    public void drawAirStrip(Graphics g)
+    private void drawAirStrip(Graphics g)
     {
         g.setColor(Color.BLACK);
         g.fillRect(50,350,550, 50);
@@ -308,9 +283,9 @@ public class Airport extends JFrame
         g.drawOval(50,400,50,50);
         g.drawOval(100,400,50,50);
     }
-    public void updateLights(Graphics g)
+    private void updateLights(Graphics g)
     {
-        Color color1=new Color(255,217,230);
+        Color color1 = new Color(255,217,230);
         g.setColor(Color.BLACK);
         g.drawRect(50,400,100,50);
         g.setColor(color1);
@@ -319,19 +294,17 @@ public class Airport extends JFrame
         {
             g.setColor(Color.GREEN);
             g.fillOval(50,400,50,50);
-
             g.setColor(color1);
-            g.fillOval(100,400,50,50);
         }
         else
         {
             g.setColor(color1);
             g.fillOval(50,400,50,50);
             g.setColor(Color.RED);
-            g.fillOval(100,400,50,50);
         }
+        g.fillOval(100,400,50,50);
     }
-    public void updateDirection(Graphics g)
+    private void updateDirection(Graphics g)
     {
 
         Color color1=new Color(255,217,230);
@@ -360,7 +333,7 @@ public class Airport extends JFrame
             g.fillRect(550,400,50,50);
         }
     }
-    public void updateStats(Graphics g)
+    private void updateStats()
     {
         lStatsValue.get(0).setText(String.valueOf(maxDelay));
         lStatsValue.get(1).setText(String.valueOf(forwardedPlanes));

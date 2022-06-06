@@ -1,17 +1,17 @@
-package Airspace;
+package ControlTower;
 
 import hla.rti1516e.*;
 import hla.rti1516e.encoding.DecoderException;
-import hla.rti1516e.encoding.HLAboolean;
 import hla.rti1516e.encoding.HLAfloat32BE;
 import hla.rti1516e.encoding.HLAinteger32BE;
 import hla.rti1516e.exceptions.FederateInternalError;
 import hla.rti1516e.time.HLAfloat64Time;
-import org.portico.impl.hla1516e.types.encoding.HLA1516eBoolean;
 import org.portico.impl.hla1516e.types.encoding.HLA1516eFloat32BE;
 import org.portico.impl.hla1516e.types.encoding.HLA1516eInteger32BE;
 
-public class AirspaceFederateAmbassador extends NullFederateAmbassador
+import static java.lang.Math.max;
+
+public class ControlTowerFederateAmbassador  extends NullFederateAmbassador
 {
     //----------------------------------------------------------
     //                    STATIC VARIABLES
@@ -20,7 +20,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
     //----------------------------------------------------------
     //                   INSTANCE VARIABLES
     //----------------------------------------------------------
-    private final AirspaceFederate federate;
+    private final ControlTowerFederate federate;
 
     // these variables are accessible in the package
     protected double federateTime        = 0.0;
@@ -33,14 +33,13 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
     protected boolean isAnnounced        = false;
     protected boolean isReadyToRun       = false;
 
-
     protected boolean isRunning       = true;
 
     //----------------------------------------------------------
     //                      CONSTRUCTORS
     //----------------------------------------------------------
 
-    public AirspaceFederateAmbassador(AirspaceFederate federate )
+    public ControlTowerFederateAmbassador(ControlTowerFederate federate )
     {
         this.federate = federate;
     }
@@ -53,14 +52,14 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
         System.out.println( "FederateAmbassador: " + message );
     }
 
-
     //////////////////////////////////////////////////////////////////////////
     ////////////////////////// RTI Callback Methods //////////////////////////
     //////////////////////////////////////////////////////////////////////////
     @Override
-    public void synchronizationPointRegistrationFailed( String label, SynchronizationPointFailureReason reason )
+    public void synchronizationPointRegistrationFailed( String label,
+                                                        SynchronizationPointFailureReason reason )
     {
-        log( "Failed to register sync point: " + label + ", reason: "+reason );
+        log( "Failed to register sync point: " + label + ", reason=: "+reason );
     }
 
     @Override
@@ -73,7 +72,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
     public void announceSynchronizationPoint( String label, byte[] tag )
     {
         log( "Synchronization point announced: " + label );
-        if( label.equals(AirspaceFederate.READY_TO_RUN) )
+        if( label.equals(ControlTowerFederate.READY_TO_RUN) )
             this.isAnnounced = true;
     }
 
@@ -81,7 +80,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
     public void federationSynchronized( String label, FederateHandleSet failed )
     {
         log( "Federation Synchronized: " + label );
-        if( label.equals(AirspaceFederate.READY_TO_RUN) )
+        if( label.equals(ControlTowerFederate.READY_TO_RUN) )
             this.isReadyToRun = true;
     }
 
@@ -115,7 +114,8 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
                                         String objectName )
             throws FederateInternalError
     {
-        log( "Discovered Object: handle: " + theObject + ", classHandle: " + theObjectClass + ", name:" + objectName );
+        log( "Discovered Object: handle: " + theObject + ", classHandle: " +
+                theObjectClass + ", name: " + objectName );
     }
 
     @Override
@@ -148,7 +148,8 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
                                         TransportationTypeHandle theTransport,
                                         LogicalTime time,
                                         OrderType receivedOrdering,
-                                        SupplementalReflectInfo reflectInfo ) throws FederateInternalError
+                                        SupplementalReflectInfo reflectInfo )
+            throws FederateInternalError
     {
         StringBuilder builder = new StringBuilder( "Reflection for object:" );
 
@@ -158,10 +159,7 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
         builder.append( ", tag: " + new String(tag) );
         // print the time (if we have it) we'll get null if we are just receiving
         // a forwarded call from the other reflect callback above
-        if( time != null )
-        {
-            builder.append( ", time: " + ((HLAfloat64Time)time).getValue() );
-        }
+
 
         // print the attribute information
         builder.append( ", attributeCount: " + theAttributes.size() );
@@ -170,66 +168,6 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
         {
             // print the attribute handle
             builder.append( "\tattributeHandle: " );
-            if( attributeHandle.equals(federate.freeHandle) )
-            {
-                builder.append( attributeHandle );
-                builder.append( " Free: " );
-                HLAboolean free = new HLA1516eBoolean();
-                try
-                {
-                    free.decode(theAttributes.get(attributeHandle));
-                } catch (DecoderException e)
-                {
-                    e.printStackTrace();
-                }
-                builder.append( free.getValue() );
-                federate.airstripFree = free.getValue();
-            }
-            if( attributeHandle.equals(federate.freeWindowHandle) )
-            {
-                builder.append( attributeHandle );
-                builder.append( " FreeWindow: " );
-                HLAfloat32BE freeWindow = new HLA1516eFloat32BE();
-                try
-                {
-                    freeWindow.decode(theAttributes.get(attributeHandle));
-                } catch (DecoderException e)
-                {
-                    e.printStackTrace();
-                }
-                builder.append( freeWindow.getValue() );
-                federate.airstripFreeWindow = freeWindow.getValue();
-            }
-            if( attributeHandle.equals(federate.availablePassengerHandle) )
-            {
-                builder.append( attributeHandle );
-                builder.append( " AvailablePassenger: " );
-                HLAinteger32BE availablePassenger = new HLA1516eInteger32BE();
-                try
-                {
-                    availablePassenger.decode(theAttributes.get(attributeHandle));
-                } catch (DecoderException e)
-                {
-                    e.printStackTrace();
-                }
-                builder.append( availablePassenger.getValue() );
-                federate.availablePassenger = availablePassenger.getValue();
-            }
-            if( attributeHandle.equals(federate.availableSpecialHandle) )
-            {
-                builder.append( attributeHandle );
-                builder.append( " AvailableSpecial: " );
-                HLAinteger32BE availableSpecial = new HLA1516eInteger32BE();
-                try
-                {
-                    availableSpecial.decode(theAttributes.get(attributeHandle));
-                } catch (DecoderException e)
-                {
-                    e.printStackTrace();
-                }
-                builder.append( availableSpecial.getValue() );
-                federate.availableSpecial = availableSpecial.getValue();
-            }
             builder.append( "\n" );
         }
 
@@ -266,15 +204,101 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
                                     TransportationTypeHandle theTransport,
                                     LogicalTime time,
                                     OrderType receivedOrdering,
-                                    SupplementalReceiveInfo receiveInfo ) throws FederateInternalError
+                                    SupplementalReceiveInfo receiveInfo )
+            throws FederateInternalError
     {
-        StringBuilder builder = new StringBuilder( "Interaction Received:" );
-        // print the handle
-        builder.append( " handle: " + interactionClass );
-        if (interactionClass.equals(federate.takeOffHandle))
+        StringBuilder builder = new StringBuilder( "Interaction Received: " );
+        builder.append(interactionClass );
+
+        int idValue;
+        float delayValue;
+        if ( interactionClass.equals(federate.forwardHandle) )
         {
-            federate.airstripFree = false;
-            builder.append( " (takeOffHandle)" );
+            for( ParameterHandle parameter : theParameters.keySet() )
+            {
+                if (parameter.equals(federate.forwardIdHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.forwardIdHandle);
+                    HLAinteger32BE id = new HLA1516eInteger32BE();
+                    try {
+                        id.decode(bytes);
+                    } catch (DecoderException e) {
+                        e.printStackTrace();
+                    }
+                    idValue = id.getValue();
+                    builder.append(",\tID: " + idValue);
+                }
+            }
+            federate.controlTower.forwardedPlanes++;
+        }
+        if ( interactionClass.equals(federate.takeOffHandle) )
+        {
+            for( ParameterHandle parameter : theParameters.keySet() )
+            {
+                if (parameter.equals(federate.takeOffIdHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.takeOffIdHandle);
+                    HLAinteger32BE id = new HLA1516eInteger32BE();
+                    try {
+                        id.decode(bytes);
+                    } catch (DecoderException e) {
+                        e.printStackTrace();
+                    }
+                    idValue = id.getValue();
+                    builder.append(",\tID: " + idValue);
+                }
+                if (parameter.equals(federate.takeOffDelayHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.takeOffDelayHandle);
+                    HLAfloat32BE delay = new HLA1516eFloat32BE();
+                    try {
+                        delay.decode(bytes);
+                    } catch (DecoderException e) {
+                        e.printStackTrace();
+                    }
+                    delayValue = delay.getValue();
+                    federate.controlTower.maxDelay = max(federate.controlTower.maxDelay, delayValue);
+                    builder.append(",\tDelay: " + delayValue);
+                }
+            }
+        }
+        if( interactionClass.equals(federate.landingHandle) )
+        {
+            for( ParameterHandle parameter : theParameters.keySet() )
+            {
+                if (parameter.equals(federate.landingIdHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.landingIdHandle);
+                    HLAinteger32BE id = new HLA1516eInteger32BE();
+                    try {
+                        id.decode(bytes);
+                    } catch (DecoderException e) {
+                        e.printStackTrace();
+                    }
+                    idValue = id.getValue();
+                    builder.append(",\tID: " + idValue);
+                }
+            }
+            federate.controlTower.landingCount++;
+        }
+        if( interactionClass.equals(federate.emergencyLandingHandle) )
+        {
+            for( ParameterHandle parameter : theParameters.keySet() )
+            {
+                if (parameter.equals(federate.emergencyIdHandle))
+                {
+                    byte[] bytes = theParameters.get(federate.emergencyIdHandle);
+                    HLAinteger32BE id = new HLA1516eInteger32BE();
+                    try {
+                        id.decode(bytes);
+                    } catch (DecoderException e) {
+                        e.printStackTrace();
+                    }
+                    idValue = id.getValue();
+                    builder.append(",\tID: " + idValue);
+                }
+            }
+            federate.controlTower.emergencyCount++;
         }
 
         // print the tag
@@ -286,23 +310,15 @@ public class AirspaceFederateAmbassador extends NullFederateAmbassador
             builder.append( ", time: " + ((HLAfloat64Time)time).getValue() );
         }
 
-        // print the parameter information
+        // print the parameer information
         builder.append( ", parameterCount: " + theParameters.size() );
         builder.append( "\n" );
-        for( ParameterHandle parameter : theParameters.keySet() )
-        {
-            // print the parameter handle
-            builder.append( "\tparamHandle: " );
-            builder.append( parameter );
-            // print the parameter value
-            builder.append( ", paramValue: " );
-            builder.append( theParameters.get(parameter).length );
-            builder.append( " bytes" );
-            builder.append( "\n" );
-        }
 
         log( builder.toString() );
     }
+
+
+
 
     @Override
     public void removeObjectInstance( ObjectInstanceHandle theObject,
