@@ -311,7 +311,7 @@ public class ControlTowerFederate {
         HLAinteger32BE emergencyCountValue = encoderFactory.createHLAinteger32BE(controlTower.emergencyCount);
         attributes.put(emergencyCountHandle, emergencyCountValue.toByteArray() );
 
-        rtiamb.updateAttributeValues( objectStatsPackage, attributes, generateTag());
+        rtiamb.updateAttributeValues( objectStatsPackage, attributes, generateTag(), timeFactory.makeTime( fedamb.federateTime+fedamb.federateLookahead));
     }
 
 

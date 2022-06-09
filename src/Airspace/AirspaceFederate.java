@@ -261,7 +261,7 @@ public class AirspaceFederate
         ParameterHandle appearIdHandle = rtiamb.getParameterHandle(appearHandle, "id");
         HLAinteger32BE id = encoderFactory.createHLAinteger32BE(plane.getId());
         parameterHandleValueMap.put(appearIdHandle, id.toByteArray());
-        rtiamb.sendInteraction(appearHandle, parameterHandleValueMap, generateTag());
+        rtiamb.sendInteraction(appearHandle, parameterHandleValueMap, generateTag(), timeFactory.makeTime( fedamb.federateTime+fedamb.federateLookahead));
         log(plane + " appeared.");
     }
     private void forward(Plane plane) throws Exception
@@ -270,7 +270,7 @@ public class AirspaceFederate
         ParameterHandle forwardIdHandle = rtiamb.getParameterHandle(forwardHandle, "id");
         HLAinteger32BE id = encoderFactory.createHLAinteger32BE(plane.getId());
         parameterHandleValueMap.put(forwardIdHandle, id.toByteArray());
-        rtiamb.sendInteraction(forwardHandle, parameterHandleValueMap, generateTag());
+        rtiamb.sendInteraction(forwardHandle, parameterHandleValueMap, generateTag(), timeFactory.makeTime( fedamb.federateTime+fedamb.federateLookahead));
         airspace.forward(plane);
         log(plane + " is being forwarded to the other airport.");
     }
@@ -290,7 +290,7 @@ public class AirspaceFederate
         HLAfloat32BE duration = encoderFactory.createHLAfloat32BE(plane.getDuration());
         parameterHandleValueMap.put(landingDurationHandle, duration.toByteArray());
 
-        rtiamb.sendInteraction(emergencyLandingHandle, parameterHandleValueMap, generateTag());
+        rtiamb.sendInteraction(emergencyLandingHandle, parameterHandleValueMap, generateTag(), timeFactory.makeTime( fedamb.federateTime+fedamb.federateLookahead));
         log(plane + " is emergency landing.");
     }
     private void landing(Plane plane) throws Exception
@@ -309,7 +309,7 @@ public class AirspaceFederate
         HLAfloat32BE duration = encoderFactory.createHLAfloat32BE(plane.getDuration());
         parameterHandleValueMap.put(landingDurationHandle, duration.toByteArray());
 
-        rtiamb.sendInteraction(landingHandle, parameterHandleValueMap, generateTag());
+        rtiamb.sendInteraction(landingHandle, parameterHandleValueMap, generateTag(), timeFactory.makeTime( fedamb.federateTime+fedamb.federateLookahead));
         log(plane + " is landing.");
     }
 

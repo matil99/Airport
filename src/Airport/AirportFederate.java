@@ -343,7 +343,7 @@ public class AirportFederate
         HLAinteger32BE specialValue = encoderFactory.createHLAinteger32BE( airport.getAvailableSpecial());
         attributes.put(availableSpecialHandle, specialValue.toByteArray() );
 
-        rtiamb.updateAttributeValues( objectAirstrip, attributes, generateTag());
+        rtiamb.updateAttributeValues( objectAirstrip, attributes, generateTag(), timeFactory.makeTime( fedamb.federateTime+fedamb.federateLookahead));
     }
     private void updateAirstripFreeWindow() throws Exception
     {
@@ -365,7 +365,7 @@ public class AirportFederate
             freeWindowValue = encoderFactory.createHLAfloat32BE(window);
         }
         attributes.put( freeWindowHandle, freeWindowValue.toByteArray() );
-        rtiamb.updateAttributeValues( objectAirstrip, attributes, generateTag());
+        rtiamb.updateAttributeValues( objectAirstrip, attributes, generateTag(), timeFactory.makeTime( fedamb.federateTime+fedamb.federateLookahead));
     }
     private void takeOff(Plane plane) throws Exception
     {
@@ -377,7 +377,7 @@ public class AirportFederate
         ParameterHandle takeOffDelayHandle = rtiamb.getParameterHandle(takeOffHandle, "delay");
         HLAfloat32BE delay = encoderFactory.createHLAfloat32BE((float) (fedamb.federateTime - plane.getStartTime()));
         parameterHandleValueMap.put(takeOffDelayHandle, delay.toByteArray());
-        rtiamb.sendInteraction(takeOffHandle, parameterHandleValueMap, generateTag());
+        rtiamb.sendInteraction(takeOffHandle, parameterHandleValueMap, generateTag(), timeFactory.makeTime( fedamb.federateTime+fedamb.federateLookahead));
         log(plane + " take off with deley " + (fedamb.federateTime - plane.getStartTime()));
     }
 
