@@ -52,7 +52,7 @@ public class Airport extends JFrame
         for (int i = n; i < n + planesInQueue; i++)
         {
             Plane plane = new Plane(i, random.nextInt(2), 50, 0);
-            plane.setStartTime(planesCount * 100);
+            plane.setStartTime(planesCount * 150);
             planesCount++;
             addPlane(plane);
         }
@@ -112,7 +112,7 @@ public class Airport extends JFrame
         {
             specialTerminal.add(plane);
         }
-        int takeOffTime = (planesCount+1) * 100;
+        int takeOffTime = (planesCount+1) * 150;
         int takeOffDuration = 50;
         plane.setStartTime(takeOffTime);
         plane.setDuration(takeOffDuration);

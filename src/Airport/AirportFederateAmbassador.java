@@ -434,7 +434,7 @@ public class AirportFederateAmbassador extends NullFederateAmbassador
                                       SupplementalRemoveInfo removeInfo )
             throws FederateInternalError
     {
-        log( "Object Removed: handle=" + theObject );
+        log( "Object Removed: handle: " + theObject );
     }
 
     //----------------------------------------------------------

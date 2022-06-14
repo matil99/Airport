@@ -21,11 +21,11 @@ public class Airspace
     }
     public Plane appear(float currentTime)
     {
-        timeToNext = random.nextInt(49)+1 + currentTime;
+        timeToNext = random.nextInt(24)+51 + currentTime;
         currentId = currentId + 1;
         int type = random.nextInt(2);
-        float fuel = random.nextInt(599)+101;
-        float duration = random.nextInt(49)+25;
+        float fuel = random.nextInt(99)+201;
+        float duration = random.nextInt(24)+51;
         Plane plane = new Plane(currentId, type, duration, fuel);
         landingQueue.add(plane);
         return plane;

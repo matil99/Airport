@@ -70,11 +70,9 @@ public class AirportFederate
     protected ParameterHandle emergencyTypeHandle;
     protected ParameterHandle emergencyDurationHandle;
 
+    /*Airport object*/
     protected Airport airport;
 
-    //----------------------------------------------------------
-    //                      CONSTRUCTORS
-    //----------------------------------------------------------
 
     //----------------------------------------------------------
     //                    INSTANCE METHODS
@@ -220,10 +218,7 @@ public class AirportFederate
         /////////////////////////////////////
         // 10. do the main simulation loop //
         /////////////////////////////////////
-        // here is where we do the meat of our work. in each iteration, we will
-        // update the attribute values of the object we registered, and will
-        // send an interaction.
-        airport = new Airport(30, 25, 15);
+        airport = new Airport(15, 25, 20);
         while( fedamb.isRunning )
         {
             if (airport.free && (fedamb.federateTime >= airport.getTakeOffTime()) && airport.getTakeOffQueueSize() != 0)
